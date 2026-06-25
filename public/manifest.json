@@ -1,0 +1,22 @@
+{
+  "name": "WonderBakes Seller",
+  "short_name": "WB Seller",
+  "description": "WonderBakes Seller Dashboard",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/menuflowerimage.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/menuflowerimage.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
