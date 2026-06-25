@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -9,6 +9,19 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // 🔐 CHECK SESSION ON PAGE LOAD
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
+
+      if (data.user) {
+        router.replace("/dashboard");
+      }
+    };
+
+    checkUser();
+  }, [router]);
 
   const login = async () => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -21,7 +34,8 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    // after login → go dashboard
+    router.replace("/dashboard");
   };
 
   return (

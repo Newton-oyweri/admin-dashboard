@@ -32,6 +32,12 @@ export default function DashboardPage() {
     <div style={{ padding: 20 }}>
       <h1>Hello {name}</h1>
       <p>Welcome to WonderBakes Seller Dashboard</p>
+
+      <button onClick={async () => {
+        await supabase.auth.signOut();
+      }}>
+        Logout
+      </button>
     </div>
   );
 }

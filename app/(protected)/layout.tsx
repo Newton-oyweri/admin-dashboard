@@ -10,6 +10,7 @@ export default function ProtectedLayout({
 }) {
   const pathname = usePathname();
 
+
   return (
     <div>
       <nav
