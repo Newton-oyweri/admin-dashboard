@@ -1,15 +1,18 @@
-"use client";
+import { createClient } from '@/lib/server';
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
-export default function ProtectedLayout({
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect('/login');
+  }
 
   return (
     <div>
