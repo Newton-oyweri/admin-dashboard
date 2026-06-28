@@ -38,14 +38,42 @@ export default function LoginPage() {
     // Notice: No routing here! The useEffect listener above will catch it safely.
   };
 
+  // Shared modern styles for inputs
+  const inputStyle = {
+    width: "100%",
+    maxWidth: "320px",
+    padding: "10px 14px",
+    fontSize: "16px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    outline: "none",
+    boxSizing: "border-box" as const,
+    backgroundColor: loading ? "#f5f5f5" : "#fff",
+  };
+
+  // Shared modern styles for the button
+  const buttonStyle = {
+    width: "100%",
+    maxWidth: "320px",
+    padding: "12px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    backgroundColor: loading ? "#482121" : "#000000",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "6px",
+    cursor: loading ? "not-allowed" : "pointer",
+  };
+
   return (
-    <div style={{ padding: 40 }}>
+    <div style={{ padding: 40, fontFamily: "sans-serif" }}>
       <h1>WonderBakes Seller</h1>
       <input
         placeholder="Email"
         value={email}
         disabled={loading}
         onChange={(e) => setEmail(e.target.value)}
+        style={inputStyle}
       />
       <br /><br />
       <input
@@ -54,9 +82,10 @@ export default function LoginPage() {
         value={password}
         disabled={loading}
         onChange={(e) => setPassword(e.target.value)}
+        style={inputStyle}
       />
       <br /><br />
-      <button onClick={login} disabled={loading}>
+      <button onClick={login} disabled={loading} style={buttonStyle}>
         {loading ? "Logging in..." : "Login"}
       </button>
     </div>
