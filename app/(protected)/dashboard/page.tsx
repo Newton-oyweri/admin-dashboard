@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/client";  
+import { supabase } from "@/lib/client";  
 
 export default function DashboardPage() {
   const [name, setName] = useState("");
@@ -12,7 +12,6 @@ export default function DashboardPage() {
     pendingOrders: 5,
   });
 
-  const supabase = createClient();
 
   useEffect(() => {
     getUser();
