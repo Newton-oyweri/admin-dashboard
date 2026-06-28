@@ -9,12 +9,34 @@ export default function Navbar() {
     window.location.href = "/login";
   }
 
+  // Shared elegant styles for navigation items
+  const linkStyle = {
+    textDecoration: "none",
+    color: "#4a5568", // Sophisticated dark gray instead of harsh black
+    fontSize: "15px",
+    fontWeight: 500,
+    transition: "color 0.2s ease",
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  };
+
+  // Modern link-style interaction for Logout
+  const logoutStyle = {
+    ...linkStyle,
+    marginLeft: "auto",
+    background: "none",
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
+    color: "#e53e3e", // Elegant muted red for destructive actions
+  };
+
   return (
     <nav
       style={{
         width: "100%",
-        background: "#fff",
-        boxShadow: "0 2px 12px rgba(0,0,0,.06)",
+        background: "#ffffff",
+        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+        borderBottom: "1px solid #edf2f7",
         position: "sticky",
         top: 0,
         zIndex: 1000,
@@ -25,28 +47,35 @@ export default function Navbar() {
           maxWidth: 1200,
           margin: "0 auto",
           display: "flex",
-          gap: 28,
+          gap: 32,
           alignItems: "center",
-          padding: "18px 24px",
+          padding: "20px 24px",
         }}
       >
-        <Link href="/dashboard">Dashboard</Link>
-        <Link href="/orders">Orders</Link>
-        <Link href="/products">Products</Link>
-        <Link href="/payouts">Payouts</Link>
-        <Link href="/settings">Settings</Link>
+        {/* Brand / Title styling if desired, otherwise standard link */}
+        <Link href="/dashboard" style={{ ...linkStyle, fontWeight: 600, color: "#1a202c" }}>
+          Dashboard
+        </Link>
+        
+        <Link href="/orders" style={linkStyle}>
+          Orders
+        </Link>
+        <Link href="/products" style={linkStyle}>
+          Products
+        </Link>
+        <Link href="/payouts" style={linkStyle}>
+          Payouts
+        </Link>
+        <Link href="/settings" style={linkStyle}>
+          Settings
+        </Link>
 
+        {/* Semantic button acting visually exactly like a text link */}
         <button
           onClick={handleLogout}
-          style={{
-            marginLeft: "auto",
-            padding: "10px 18px",
-            border: "none",
-            borderRadius: 8,
-            background: "#e91e63",
-            color: "#fff",
-            cursor: "pointer",
-          }}
+          style={logoutStyle}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#9b2c2c")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#e53e3e")}
         >
           Logout
         </button>
