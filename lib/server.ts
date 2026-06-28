@@ -1,3 +1,4 @@
+// lib/server.ts
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
@@ -16,14 +17,14 @@ export async function createClient() {
           try {
             cookieStore.set({ name, value, ...options });
           } catch (error) {
-            // Ignore if headers already sent
+            // Safe to ignore if headers are already sent
           }
         },
         remove(name: string, options: any) {
           try {
             cookieStore.set({ name, value: '', ...options });
           } catch (error) {
-            // Ignore if headers already sent
+            // Safe to ignore if headers are already sent
           }
         },
       },

@@ -12,7 +12,6 @@ export default function DashboardPage() {
     pendingOrders: 5,
   });
 
-
   useEffect(() => {
     getUser();
   }, []);
@@ -48,19 +47,8 @@ export default function DashboardPage() {
           <h1 style={{ fontSize: "32px", margin: "0 0 8px 0" }}>Hello, {name || "Seller"} 👋</h1>
           <p style={{ color: "#666", fontSize: "18px" }}>Welcome back to your WonderBakes Dashboard</p>
         </div>
-        <button 
-          onClick={() => window.location.href = '/login'}
-          style={{
-            padding: "10px 20px",
-            background: "#e91e63",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer"
-          }}
-        >
-          Logout
-        </button>
+        <div>
+        </div>
       </div>
 
       {/* Key Stats */}
