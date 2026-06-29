@@ -12,14 +12,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const viewport = {
-  themeColor: "#f97316",
-};
-
 export const metadata = {
   title: "WonderBakes Seller",
   description: "Seller Dashboard",
-  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -32,11 +27,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        {/* The 1200px Fixed-Width Container */}
-        <div className="w-full max-w-[1200px] mx-auto flex-1 flex flex-col px-4 sm:px-6">
-          {children}
-        </div>
+      <head>
+        {/* Forces the phone browser to map the viewport track at 1200px directly */}
+        <meta name="viewport" content="width=1200, initial-scale=1" />
+      </head>
+      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950">
+        {children}
       </body>
     </html>
   );

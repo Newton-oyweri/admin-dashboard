@@ -1,81 +1,55 @@
 "use client";
 
-import Link from "next/link";
 import { supabase } from "@/lib/client";
 
-export default function Navbar() {
+interface NavbarProps {
+  currentTab: string;
+  setCurrentTab: (tab: string) => void;
+}
+
+export default function Navbar({ currentTab, setCurrentTab }: NavbarProps) {
   async function handleLogout() {
     await supabase.auth.signOut();
     window.location.href = "/login";
   }
 
-  // Shared elegant styles for navigation items
-  const linkStyle = {
-    textDecoration: "none",
-    color: "#4a5568", // Sophisticated dark gray instead of harsh black
-    fontSize: "15px",
-    fontWeight: 500,
-    transition: "color 0.2s ease",
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-  };
-
-  // Modern link-style interaction for Logout
-  const logoutStyle = {
-    ...linkStyle,
-    marginLeft: "auto",
-    background: "none",
-    border: "none",
-    padding: 0,
-    cursor: "pointer",
-    color: "#e53e3e", // Elegant muted red for destructive actions
-  };
+  const navigationItems = [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "orders", label: "Orders" },
+    { id: "products", label: "Products" },
+    { id: "payouts", label: "Payouts" },
+    { id: "settings", label: "Settings" },
+  ];
 
   return (
-    <nav
-      style={{
-        width: "100%",
-        background: "#ffffff",
-        boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)",
-        borderBottom: "1px solid #edf2f7",
-        position: "sticky",
-        top: 0,
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "flex",
-          gap: 32,
-          alignItems: "center",
-          padding: "20px 24px",
-        }}
-      >
-        {/* Brand / Title styling if desired, otherwise standard link */}
-        <Link href="/dashboard" style={{ ...linkStyle, fontWeight: 600, color: "#1a202c" }}>
-          Dashboard
-        </Link>
+    <nav className="w-full sticky top-0 z-50 bg-white border-b border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 shadow-xs">
+      {/* Aligns directly inside your 1200px viewport constraint smoothly */}
+      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-4 sm:px-6">
         
-        <Link href="/orders" style={linkStyle}>
-          Orders
-        </Link>
-        <Link href="/products" style={linkStyle}>
-          Products
-        </Link>
-        <Link href="/payouts" style={linkStyle}>
-          Payouts
-        </Link>
-        <Link href="/settings" style={linkStyle}>
-          Settings
-        </Link>
+        {/* Navigation Tabs Track */}
+        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar sm:gap-6">
+          {navigationItems.map((item) => {
+            const isActive = currentTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentTab(item.id)}
+                className={`text-sm font-medium transition-colors cursor-pointer whitespace-nowrap pb-1 border-b-2 ${
+                  isActive
+                    ? "text-orange-500 border-orange-500 dark:text-orange-400 dark:border-orange-400 font-semibold"
+                    : "text-zinc-500 border-transparent hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
 
-        {/* Semantic button acting visually exactly like a text link */}
+        {/* Destructive Action Logout Trigger */}
         <button
           onClick={handleLogout}
-          style={logoutStyle}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#9b2c2c")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#e53e3e")}
+          className="text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer ml-4 shrink-0"
         >
           Logout
         </button>
