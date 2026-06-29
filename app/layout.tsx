@@ -11,11 +11,10 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 export const viewport = {
   themeColor: "#f97316",
 };
-
-
 
 export const metadata = {
   title: "WonderBakes Seller",
@@ -33,7 +32,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {/* The 1200px Fixed-Width Container */}
+        <div className="w-full max-w-[1200px] mx-auto flex-1 flex flex-col px-4 sm:px-6">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }
