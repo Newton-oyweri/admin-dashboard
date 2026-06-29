@@ -16,7 +16,7 @@ export default function LoginPage() {
       if (event === "SIGNED_IN" && session) {
         // The library has guaranteed the cookies/localstorage are written
         router.refresh(); // Clears Next.js server component cache
-        router.replace("/dashboard");
+        router.replace("/");
       }
     });
 
