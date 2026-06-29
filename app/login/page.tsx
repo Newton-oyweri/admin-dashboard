@@ -58,7 +58,7 @@ export default function LoginPage() {
     padding: "12px",
     fontSize: "16px",
     fontWeight: "bold",
-    backgroundColor: loading ? "#482121" : "#000000",
+    backgroundColor: loading ? "#482121" : "#f97316",
     color: "#ffffff",
     border: "none",
     borderRadius: "6px",

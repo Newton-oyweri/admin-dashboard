@@ -12,6 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport = {
+  themeColor: "#f97316",
+};
+
 export const metadata = {
   title: "WonderBakes Seller",
   description: "Seller Dashboard",
