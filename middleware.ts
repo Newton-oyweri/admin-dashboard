@@ -39,13 +39,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // 4. If logged in and trying to go to login page, send to dashboard
-  if (user && isLoginPage) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  return response;
-}
 
 export const config = {
   matcher: [
