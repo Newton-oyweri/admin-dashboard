@@ -9,7 +9,6 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // 1. Setup Supabase client for the middleware environment
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -19,8 +18,12 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+
           response = NextResponse.next({ request });
+
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -29,16 +32,19 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // 2. Get the current user session
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const isLoginPage = request.nextUrl.pathname.startsWith('/login');
+  const isLoginPage = request.nextUrl.pathname.startsWith("/login");
 
-  // 3. If not logged in and trying to access protected routes, boot to login
+  // If not logged in, only allow access to the login page
   if (!user && !isLoginPage) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  return response;
+}
 
 export const config = {
   matcher: [
@@ -46,9 +52,9 @@ export const config = {
      * Match all paths except:
      * - _next/static (static assets)
      * - _next/image (image optimization)
-     * - favicon.ico (favicon)
+     * - favicon.ico
      * - public files with extensions (svg, png, jpg, etc.)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
