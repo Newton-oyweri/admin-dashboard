@@ -1,15 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { supabase } from "@/lib/client";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
+    try {
+      setLoggingOut(true);
+      await supabase.auth.signOut();
+      router.replace("/login");
+      router.refresh();
+    } finally {
+      setLoggingOut(false);
+    }
   }
 
   const navigationItems = [
@@ -21,34 +29,36 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="w-full sticky top-0 z-50 bg-white border-b border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 shadow-xs">
-      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar sm:gap-6">
+    <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-zinc-800 dark:bg-zinc-900/90 shadow-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <nav className="flex items-center gap-2 overflow-x-auto no-scrollbar">
           {navigationItems.map((item) => {
             const isActive = pathname === item.path;
+
             return (
               <button
                 key={item.id}
                 onClick={() => router.push(item.path)}
-                className={`text-sm font-medium transition-colors cursor-pointer whitespace-nowrap pb-1 border-b-2 ${
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                   isActive
-                    ? "text-orange-500 border-orange-500 dark:text-orange-400 dark:border-orange-400 font-semibold"
-                    : "text-zinc-500 border-transparent hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+                    ? "bg-orange-500 text-white shadow-sm"
+                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
                 }`}
               >
                 {item.label}
               </button>
             );
           })}
-        </div>
+        </nav>
 
         <button
           onClick={handleLogout}
-          className="text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer ml-4 shrink-0"
+          disabled={loggingOut}
+          className="ml-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          Logout
+          {loggingOut ? "Signing out..." : "Logout"}
         </button>
       </div>
-    </nav>
+    </header>
   );
 }
