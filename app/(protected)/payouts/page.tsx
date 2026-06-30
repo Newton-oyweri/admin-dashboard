@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Navbar from "@/components/Navbar";
 
 export default function PayoutsPage() {
   const [totalIncome] = useState(124500); // KES
@@ -43,91 +44,79 @@ export default function PayoutsPage() {
   ];
 
   return (
-    <div style={{ padding: "24px", maxWidth: "1100px", margin: "0 auto" }}>
-      <h1 style={{ fontSize: "28px", marginBottom: "8px" }}>Payouts</h1>
-      <p style={{ color: "#666", marginBottom: "32px" }}>Track your earnings and request payouts</p>
-
-      {/* Total Income Card */}
-      <div style={{
-        background: "#fff",
-        padding: "32px",
-        borderRadius: "12px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        textAlign: "center",
-        marginBottom: "32px"
-      }}>
-        <p style={{ fontSize: "18px", color: "#666", marginBottom: "8px" }}>Total Income</p>
-        <h2 style={{ fontSize: "48px", margin: "0 0 12px 0", color: "#e91e63" }}>
-          KES {totalIncome.toLocaleString()}
-        </h2>
-        <p style={{ color: "#4ade80", fontWeight: "600" }}>This Month</p>
+    <div className="w-full max-w-[1200px] mx-auto py-6 space-y-6 sm:py-8 sm:space-y-8">
+      <Navbar />
+      
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl text-zinc-900 dark:text-zinc-50">
+            Payouts
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            Track your earnings and request payouts
+          </p>
+        </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "40px" }}>
+      {/* Total Income Card */}
+      <div className="border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xs p-8 text-center">
+        <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 mb-2">Total Income</p>
+        <h2 className="text-4xl sm:text-5xl font-bold text-pink-600 dark:text-pink-400 mb-3">
+          KES {totalIncome.toLocaleString()}
+        </h2>
+        <p className="text-sm font-medium text-emerald-500 dark:text-emerald-400">This Month</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         
         {/* Category Breakdown */}
-        <div style={{
-          background: "#fff",
-          padding: "24px",
-          borderRadius: "12px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-        }}>
-          <h3 style={{ marginBottom: "20px" }}>Income by Category</h3>
-          {categoryBreakdown.map((item, index) => (
-            <div key={index} style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "12px 0",
-              borderBottom: index !== categoryBreakdown.length - 1 ? "1px solid #eee" : "none"
-            }}>
-              <div>
-                <strong>{item.category}</strong>
-                <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "#666" }}>
-                  {item.sales} sales
-                </p>
+        <div className="border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xs p-5 sm:p-6">
+          <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+            Income by Category
+          </h3>
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            {categoryBreakdown.map((item, index) => (
+              <div 
+                key={index} 
+                className="flex justify-between items-center py-3 first:pt-0 last:pb-0"
+              >
+                <div>
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">
+                    {item.category}
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    {item.sales} sales
+                  </p>
+                </div>
+                <div className="text-right font-bold text-zinc-900 dark:text-zinc-50">
+                  KES {item.income.toLocaleString()}
+                </div>
               </div>
-              <div style={{ textAlign: "right", fontWeight: "600" }}>
-                KES {item.income.toLocaleString()}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Quick Stats */}
-        <div style={{
-          background: "#fff",
-          padding: "24px",
-          borderRadius: "12px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-        }}>
-          <h3 style={{ marginBottom: "20px" }}>Summary</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>Total Orders</span>
-              <strong>25</strong>
+        <div className="border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xs p-5 sm:p-6">
+          <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+            Summary
+          </h3>
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-600 dark:text-zinc-400">Total Orders</span>
+              <strong className="text-zinc-900 dark:text-zinc-50">25</strong>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>Pending Payout</span>
-              <strong style={{ color: "#e91e63" }}>KES 18,500</strong>
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-600 dark:text-zinc-400">Pending Payout</span>
+              <strong className="text-pink-600 dark:text-pink-400">KES 18,500</strong>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>Next Payout Date</span>
-              <strong>July 5, 2025</strong>
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-600 dark:text-zinc-400">Next Payout Date</span>
+              <strong className="text-zinc-900 dark:text-zinc-50">July 5, 2025</strong>
             </div>
           </div>
 
-          <button style={{
-            marginTop: "24px",
-            width: "100%",
-            padding: "16px",
-            background: "#e91e63",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "17px",
-            fontWeight: "600",
-            cursor: "pointer"
-          }}>
+          <button className="w-full mt-6 px-4 py-3 bg-pink-600 hover:bg-pink-700 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer">
             Request Payout
           </button>
         </div>
@@ -135,33 +124,37 @@ export default function PayoutsPage() {
 
       {/* Recent Sales */}
       <div>
-        <h3 style={{ marginBottom: "20px" }}>Recent Sales</h3>
+        <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+          Recent Sales
+        </h3>
         
-        <div style={{ background: "#fff", borderRadius: "12px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-          {recentSales.map((sale) => (
-            <div
-              key={sale.id}
-              style={{
-                padding: "20px",
-                borderBottom: "1px solid #eee",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between"
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: "600" }}>{sale.product}</div>
-                <div style={{ fontSize: "14px", color: "#666" }}>{sale.date}</div>
-              </div>
-
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: "700", color: "#16a34a" }}>
-                  + KES {sale.amount.toLocaleString()}
+        <div className="border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 overflow-hidden">
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+            {recentSales.map((sale) => (
+              <div
+                key={sale.id}
+                className="p-4 sm:p-5 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+              >
+                <div>
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">
+                    {sale.product}
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    {sale.date}
+                  </p>
                 </div>
-                <div style={{ fontSize: "13px", color: "#666" }}>{sale.status}</div>
+
+                <div className="text-right">
+                  <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                    + KES {sale.amount.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    {sale.status}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

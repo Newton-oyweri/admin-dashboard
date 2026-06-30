@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/client";
+import Navbar from "@/components/Navbar";
 
 // ===== TYPES =====
 interface Product {
@@ -153,7 +154,7 @@ export default function ProductsPage() {
 
       // 2️⃣ SAVE TO SUPABASE WITH PROFILE ID AS SELLER
       const productData = {
-        seller_id: profile.id, // ← Profile ID from profiles table
+        seller_id: profile.id,
         category: formData.category,
         name: formData.name,
         description: formData.description,
@@ -263,290 +264,273 @@ export default function ProductsPage() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '20px' }}>Products</h1>
+    <div className="w-full max-w-[1200px] mx-auto py-6 space-y-6 sm:py-8 sm:space-y-8">
+      <Navbar />
+      
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl text-zinc-900 dark:text-zinc-50">
+            Products
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            Manage your products and inventory
+          </p>
+        </div>
+        <div className="text-sm text-zinc-500 dark:text-zinc-400">
+          Total: <span className="font-semibold text-zinc-900 dark:text-zinc-50">{products.length}</span>
+        </div>
+      </div>
 
       {/* Display seller info */}
       {profile && (
-        <div style={{ marginBottom: '20px', padding: '12px', background: '#f0f0f0', borderRadius: '4px' }}>
-          <strong>Seller:</strong> {profile.full_name} ({profile.role})
+        <div className="p-4 border rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <strong>Seller:</strong> {profile.full_name} 
+            <span className="ml-2 px-2 py-0.5 bg-zinc-200 dark:bg-zinc-700 rounded-full text-xs">
+              {profile.role}
+            </span>
+          </p>
         </div>
       )}
 
       {/* Upload Form */}
-      <div style={{ marginBottom: '40px', border: '1px solid #ddd', padding: '20px', borderRadius: '8px' }}>
-        <h2 style={{ marginBottom: '20px' }}>Add New Product</h2>
+      <div className="border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xs overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-zinc-200 dark:border-zinc-700">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Add New Product</h2>
+        </div>
         
-        <form onSubmit={handleUpload}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tbody>
-              <tr>
-                <td style={{ padding: '8px', fontWeight: 'bold', width: '150px' }}>Product Name</td>
-                <td style={{ padding: '8px' }}>
-                  <input 
-                    type="text" 
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Product name"
-                    required
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '8px', fontWeight: 'bold' }}>Category</td>
-                <td style={{ padding: '8px' }}>
-                  <select 
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                  >
-                    <option value="cake">Cake</option>
-                    <option value="pizza">Pizza</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '8px', fontWeight: 'bold' }}>Price (KES)</td>
-                <td style={{ padding: '8px' }}>
-                  <input 
-                    type="number" 
-                    name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    placeholder="2500"
-                    required
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '8px', fontWeight: 'bold' }}>Post Type</td>
-                <td style={{ padding: '8px' }}>
-                  <select 
-                    name="post_type"
-                    value={formData.post_type}
-                    onChange={handleInputChange}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                  >
-                    <option value="sale">For Sale</option>
-                    <option value="booking">For Booking</option>
-                    <option value="pinned">Pinned</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '8px', fontWeight: 'bold', verticalAlign: 'top' }}>Description</td>
-                <td style={{ padding: '8px' }}>
-                  <textarea 
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows={4}
-                    placeholder="Product description..."
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '8px', fontWeight: 'bold', verticalAlign: 'top' }}>Product Images</td>
-                <td style={{ padding: '8px' }}>
-                  <div style={{ border: '2px dashed #ccc', padding: '20px', borderRadius: '4px', textAlign: 'center' }}>
-                    <input 
-                      id="fileInput"
-                      type="file" 
-                      multiple 
-                      accept="image/*" 
-                      onChange={handleFileChange}
-                      required
-                    />
-                    {formData.files.length > 0 && (
-                      <div style={{ marginTop: '10px' }}>
-                        <p style={{ fontWeight: 'bold', color: 'green' }}>
-                          ✅ {formData.files.length} image(s) selected
-                        </p>
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '8px' }}>
-                          {formData.files.map((file, index) => (
-                            <span key={index} style={{ 
-                              background: '#f0f0f0', 
-                              padding: '4px 12px', 
-                              borderRadius: '20px',
-                              fontSize: '12px'
-                            }}>
-                              {file.name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+        <form onSubmit={handleUpload} className="p-5 sm:p-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                Product Name
+              </label>
+              <input 
+                type="text" 
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Enter product name"
+                required
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  Category
+                </label>
+                <select 
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                >
+                  <option value="cake">Cake</option>
+                  <option value="pizza">Pizza</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  Price (KES)
+                </label>
+                <input 
+                  type="number" 
+                  name="price"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  placeholder="2500"
+                  required
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                Post Type
+              </label>
+              <select 
+                name="post_type"
+                value={formData.post_type}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              >
+                <option value="sale">For Sale</option>
+                <option value="booking">For Booking</option>
+                <option value="pinned">Pinned</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                Description
+              </label>
+              <textarea 
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={4}
+                placeholder="Describe your product..."
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-vertical"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                Product Images
+              </label>
+              <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-6 text-center hover:border-pink-500 transition-colors">
+                <input 
+                  id="fileInput"
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleFileChange}
+                  required
+                  className="block w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 dark:file:bg-pink-900/30 dark:file:text-pink-400"
+                />
+                {formData.files.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      {formData.files.length} image(s) selected
+                    </p>
+                    <div className="flex gap-2 flex-wrap justify-center mt-2">
+                      {formData.files.map((file, index) => (
+                        <span key={index} className="px-3 py-1 bg-zinc-100 dark:bg-zinc-700 rounded-full text-xs text-zinc-600 dark:text-zinc-300">
+                          {file.name}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={2} style={{ padding: '8px' }}>
-                  <button 
-                    type="submit"
-                    disabled={uploading || !profile}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      background: uploading || !profile ? '#ccc' : '#e91e63',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                      cursor: uploading || !profile ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    {!profile ? 'Please complete profile first' : 
-                     uploading ? `Uploading ${formData.files.length} images...` : 'Upload Product'}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                )}
+              </div>
+            </div>
+
+            <button 
+              type="submit"
+              disabled={uploading || !profile}
+              className="w-full px-4 py-3 bg-pink-600 hover:bg-pink-700 disabled:bg-zinc-400 dark:disabled:bg-zinc-600 text-white font-semibold rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
+            >
+              {!profile ? 'Please complete profile first' : 
+               uploading ? `Uploading ${formData.files.length} images...` : 'Upload Product'}
+            </button>
+          </div>
         </form>
       </div>
 
-      {/* My Products List */}
+      {/* Products List */}
       <div>
-        <h2 style={{ marginBottom: '20px' }}>My Products ({products.length})</h2>
+        <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+          My Products ({products.length})
+        </h2>
 
         {loading ? (
-          <p>Loading products...</p>
+          <div className="text-center py-8">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-pink-500 border-t-transparent"></div>
+            <p className="mt-2 text-zinc-500">Loading products...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12 border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
+            <p className="text-zinc-500 dark:text-zinc-400">No products yet</p>
+            <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">Add your first product above</p>
+          </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
-            <thead>
-              <tr style={{ background: '#f5f5f5' }}>
-                <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Images</th>
-                <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Product</th>
-                <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Category</th>
-                <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Price</th>
-                <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Status</th>
-                <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id}>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                      {product.image_urls && product.image_urls.length > 0 ? (
-                        product.image_urls.slice(0, 3).map((url, index) => (
-                          <img
-                            key={index}
-                            src={url}
-                            alt={`${product.name} ${index + 1}`}
-                            style={{
-                              width: '60px',
-                              height: '60px',
-                              objectFit: 'cover',
-                              borderRadius: '4px',
-                              border: index === 0 ? '2px solid #e91e63' : '1px solid #ddd'
-                            }}
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://via.placeholder.com/60?text=No+Image';
-                            }}
-                          />
-                        ))
-                      ) : (
-                        <div style={{ width: '60px', height: '60px', background: '#f0f0f0', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: '12px' }}>
-                          No img
+          <div className="border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-700">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Images</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Product</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Category</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Price</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {products.map((product) => (
+                    <tr key={product.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1 flex-wrap">
+                          {product.image_urls && product.image_urls.length > 0 ? (
+                            product.image_urls.slice(0, 3).map((url, index) => (
+                              <img
+                                key={index}
+                                src={url}
+                                alt={`${product.name} ${index + 1}`}
+                                className="w-12 h-12 object-cover rounded border border-zinc-200 dark:border-zinc-700"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = 'https://via.placeholder.com/60?text=No+Image';
+                                }}
+                              />
+                            ))
+                          ) : (
+                            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-700 rounded flex items-center justify-center text-xs text-zinc-400">
+                              No img
+                            </div>
+                          )}
+                          {product.image_urls && product.image_urls.length > 3 && (
+                            <div className="w-12 h-12 bg-pink-600 rounded flex items-center justify-center text-white font-bold text-sm">
+                              +{product.image_urls.length - 3}
+                            </div>
+                          )}
                         </div>
-                      )}
-                      {product.image_urls && product.image_urls.length > 3 && (
-                        <div style={{
-                          width: '60px',
-                          height: '60px',
-                          background: '#e91e63',
-                          borderRadius: '4px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontWeight: 'bold',
-                          fontSize: '14px'
-                        }}>
-                          +{product.image_urls.length - 3}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-zinc-900 dark:text-zinc-50">{product.name}</div>
+                        {product.description && (
+                          <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-1">
+                            {product.description}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="text-sm capitalize text-zinc-900 dark:text-zinc-50">{product.category}</div>
+                        <div className="text-xs text-zinc-500 dark:text-zinc-400">{product.post_type}</div>
+                      </td>
+                      <td className="px-4 py-3 font-bold text-pink-600 dark:text-pink-400">
+                        KES {Number(product.price).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
+                          product.is_available 
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' 
+                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                          {product.is_available ? 'Available' : 'Finished'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2 flex-wrap">
+                          <button
+                            onClick={() => toggleAvailability(product.id, product.is_available)}
+                            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                              product.is_available 
+                                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50' 
+                                : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50'
+                            }`}
+                          >
+                            {product.is_available ? 'Mark Finished' : 'Mark Available'}
+                          </button>
+                          <button
+                            onClick={() => deleteProduct(product.id, product.image_urls)}
+                            className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                          >
+                            Delete
+                          </button>
                         </div>
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    <div>
-                      <strong>{product.name}</strong>
-                      {product.description && (
-                        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                          {product.description.length > 50 ? product.description.substring(0, 50) + '...' : product.description}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd', textTransform: 'capitalize' }}>
-                    {product.category}
-                    <div style={{ fontSize: '11px', color: '#999' }}>{product.post_type}</div>
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd', fontWeight: 'bold', color: '#e91e63' }}>
-                    KES {Number(product.price).toLocaleString()}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    <span style={{
-                      padding: '4px 12px',
-                      borderRadius: '20px',
-                      background: product.is_available ? '#4ade80' : '#f87171',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}>
-                      {product.is_available ? 'Available' : 'Finished'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      <button
-                        onClick={() => toggleAvailability(product.id, product.is_available)}
-                        style={{
-                          padding: '6px 12px',
-                          borderRadius: '4px',
-                          border: 'none',
-                          background: product.is_available ? '#f59e0b' : '#4ade80',
-                          color: 'white',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        {product.is_available ? 'Mark Finished' : 'Mark Available'}
-                      </button>
-                      <button
-                        onClick={() => deleteProduct(product.id, product.image_urls)}
-                        style={{
-                          padding: '6px 12px',
-                          borderRadius: '4px',
-                          border: 'none',
-                          background: '#ef4444',
-                          color: 'white',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-
-        {!loading && products.length === 0 && (
-          <p style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-            No products yet. Add your first product above.
-          </p>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
       </div>
     </div>

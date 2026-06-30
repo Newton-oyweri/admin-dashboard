@@ -1,128 +1,136 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/client";
+import Navbar from "@/components/Navbar";
 
-// Import your custom views directly from your protected folder track
-import DashboardView from "./(protected)/dashboard/page";
-import OrdersView from "./(protected)/orders/page";
-import ProductsView from "./(protected)/products/page";
-import PayoutsView from "./(protected)/payouts/page";
-import SettingsView from "./(protected)/settings/page";
-
-export default function MainAppHub() {
-  const router = useRouter();
-  const [currentTab, setCurrentTab] = useState("dashboard");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+export default function DashboardPage() {
+  const [name, setName] = useState("");
+  const [stats, setStats] = useState({
+    totalIncome: 124500,
+    totalOrders: 28,
+    activeProducts: 12,
+    pendingOrders: 5,
+  });
 
   useEffect(() => {
-    checkUserSession();
+    getUser();
   }, []);
 
-  async function checkUserSession() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-      } else {
-        setIsAuthenticated(true);
-      }
-    } catch (err) {
-      console.error("Auth session exception error:", err);
-      router.push("/login");
-    } finally {
-      setLoading(false);
+  async function getUser() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
+
+    if (data) {
+      setName(data.full_name);
     }
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-sm font-medium text-zinc-500 animate-pulse">
-          Verifying WonderBakes secure session...
-          </p>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) return null;
-
-  // Dictionary mapping states to views dynamically
-  const renderActiveComponent = () => {
-    switch (currentTab) {
-      case "dashboard":
-        return <DashboardView />;
-      case "orders":
-        return <OrdersView />;
-      case "products":
-        return <ProductsView />;
-      case "payouts":
-        return <PayoutsView />;
-      case "settings":
-        return <SettingsView />;
-      default:
-        return <DashboardView />;
-    }
-  };
-
-  const navItems = [
-    { id: "dashboard", label: "Dashboard" },
-    { id: "orders", label: "Orders" },
-    { id: "products", label: "Products" },
-    { id: "payouts", label: "Payouts" },
-    { id: "settings", label: "Settings" },
+  const recentOrders = [
+    { id: 1, customer: "Jane Doe", product: "Chocolate Cake", amount: 2500, status: "pending" },
+    { id: 2, customer: "John Mwangi", product: "Pepperoni Pizza", amount: 2400, status: "accepted" },
+    { id: 3, customer: "Mary Wambui", product: "Rose Bouquet", amount: 1800, status: "ready" },
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50">
+    <div className="w-full max-w-[1200px] mx-auto py-6 space-y-6 sm:py-8 sm:space-y-8">
+      <Navbar />
       
-      {/* 1. Global Responsive Sticky Navbar */}
-      <nav className="w-full sticky top-0 z-50 bg-white border-b border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 shadow-xs">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-4 sm:px-6">
-          
-          {/* Navigation Items Track */}
-          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar sm:gap-6">
-            {navItems.map((item) => {
-              const isActive = currentTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setCurrentTab(item.id)}
-                  className={`text-sm font-medium transition-colors cursor-pointer whitespace-nowrap pb-1 border-b-2 ${
-                    isActive
-                      ? "text-orange-500 border-orange-500 dark:text-orange-400 dark:border-orange-400 font-semibold"
-                      : "text-zinc-500 border-transparent hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Logout Trigger */}
-          <button
-            onClick={handleLogout}
-            className="text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer ml-4 shrink-0"
-          >
-            Logout
-          </button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl text-zinc-900 dark:text-zinc-50">
+            Hello, {name || "Seller"}
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            Welcome back to your WonderBakes Dashboard
+          </p>
         </div>
-      </nav>
-
-      {/* 2. Main Page Active Tab Render Workspace */}
-      {/* Enforces your 1200px width limit perfectly across all dynamically swapped pages */}
-      <div className="w-full max-w-[1200px] mx-auto flex-1 flex flex-col px-4 sm:px-6">
-        {renderActiveComponent()}
       </div>
 
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="p-5 border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xs">
+          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Income</p>
+          <h2 className="mt-2 text-lg font-bold tracking-tight text-pink-600 dark:text-pink-400 sm:text-2xl">
+            KES {stats.totalIncome.toLocaleString()}
+          </h2>
+          <p className="mt-1 text-[11px] text-green-500 font-medium">This Month</p>
+        </div>
+
+        <div className="p-5 border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xs">
+          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Orders</p>
+          <h2 className="mt-2 text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-2xl">
+            {stats.totalOrders}
+          </h2>
+          <p className="mt-1 text-[11px] text-zinc-400 font-medium">All-time packages</p>
+        </div>
+
+        <div className="p-5 border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xs">
+          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Active Products</p>
+          <h2 className="mt-2 text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-2xl">
+            {stats.activeProducts}
+          </h2>
+          <p className="mt-1 text-[11px] text-zinc-400 font-medium">Live items</p>
+        </div>
+
+        <div className="p-5 border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xs">
+          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Pending Orders</p>
+          <h2 className="mt-2 text-lg font-bold tracking-tight text-amber-500 dark:text-amber-400 sm:text-2xl">
+            {stats.pendingOrders}
+          </h2>
+          <p className="mt-1 text-[11px] text-amber-500/80 font-medium">Requires dispatch</p>
+        </div>
+      </div>
+
+      <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:pb-0">
+        <div className="w-[88vw] shrink-0 snap-center p-5 border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 sm:w-auto sm:col-span-2">
+          <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 mb-4">Recent Orders</h3>
+          
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs sm:text-sm">
+            {recentOrders.map((order) => (
+              <div key={order.id} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
+                <div className="space-y-0.5">
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">{order.product}</p>
+                  <p className="text-zinc-500 dark:text-zinc-400 text-[11px]">by {order.customer}</p>
+                </div>
+                <div className="text-right space-y-1">
+                  <p className="font-bold text-zinc-900 dark:text-zinc-50">KES {order.amount.toLocaleString()}</p>
+                  <span className={`inline-block px-2.5 py-0.5 text-[10px] font-medium rounded-full uppercase tracking-wider ${
+                    order.status === "pending"
+                      ? "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-400"
+                      : "bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-400"
+                  }`}>
+                    {order.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="w-[88vw] shrink-0 snap-center p-5 border rounded-xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 sm:w-auto">
+          <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 mb-4">Quick Actions</h3>
+          <div className="flex flex-col gap-2.5">
+            <button className="w-full text-left p-3.5 text-xs font-semibold rounded-lg border bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-800/40 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-700 transition-all text-zinc-700 dark:text-zinc-300 cursor-pointer">
+              Add New Product
+            </button>
+            <button className="w-full text-left p-3.5 text-xs font-semibold rounded-lg border bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-800/40 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-700 transition-all text-zinc-700 dark:text-zinc-300 cursor-pointer">
+              Manage Orders
+            </button>
+            <button className="w-full text-left p-3.5 text-xs font-semibold rounded-lg border bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-800/40 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-700 transition-all text-zinc-700 dark:text-zinc-300 cursor-pointer">
+              View Payouts
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
