@@ -12,10 +12,24 @@ export default function Navbar() {
 
   useEffect(() => {
     async function getActiveUser() {
+      // 1. Get the authenticated user session
       const { data: { user } } = await supabase.auth.getUser();
+      
       if (user) {
-        const name = user.user_metadata?.full_name || user.email?.split("@")[0] || "Seller";
-        setUserName(name);
+        // 2. Fetch the 'name' column from your custom 'profiles' table matching the user's ID
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("name") // Adjust this if your column is named 'full_name' or 'username'
+          .eq("id", user.id)
+          .single();
+
+        if (!error && profile?.name) {
+          setUserName(profile.name);
+        } else {
+          // Fallback if profile row doesn't exist yet or column is empty
+          const fallbackName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Seller";
+          setUserName(fallbackName);
+        }
       }
     }
     getActiveUser();
@@ -33,10 +47,9 @@ export default function Navbar() {
   }
 
   const navigationItems = [
-    { id: "dashboard", label: "Dashboard", path: "/" },
-    { id: "orders", label: "Orders", path: "/orders" },
-    { id: "products", label: "Products", path: "/products" },
-    { id: "payouts", label: "Payouts", path: "/payouts" },
+    { id: "orders", label: "My orders", path: "/" },
+    { id: "products", label: "My Products", path: "/products" },
+    { id: "payouts", label: "Payout", path: "/payouts" },
   ];
 
   return (
