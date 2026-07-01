@@ -1,6 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "./providers"; // Import your provider
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +34,13 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {/* Forces the phone browser to map the viewport track at 1200px directly */}
         <meta name="viewport" content="width=1200, initial-scale=1" />
       </head>
       <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950">
-        {children}
+        {/* Wrap children here to distribute auth across all routes */}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
