@@ -105,20 +105,19 @@ export default function Navbar() {
 
   // Hide install button if already installed as PWA
   const showInstallButton = !isInstalled && deferredPrompt;
-
-  return (
+return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-zinc-800 dark:bg-zinc-900/90 shadow-sm">
-      <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6 lg:px-8">
         
-        {/* Navigation items & Dynamic Welcome banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-          <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 pl-1 whitespace-nowrap">
-            Welcome back, {userName}
+        {/* Left Side: Welcome Text + Scrollable Navigation Links */}
+        <div className="flex items-center gap-3 overflow-hidden min-w-0 flex-1">
+          <span className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 whitespace-nowrap shrink-0">
+            Hi, {userName.split(" ")[0]} {/* Shortened to first name on mobile to save space */}
           </span>
           
-          <div className="h-px sm:h-4 w-full sm:w-px bg-zinc-200 dark:bg-zinc-700 hidden sm:block" />
+          <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-700 shrink-0" />
           
-          <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 min-w-0 flex-1">
             {visibleItems.map((item) => {
               const isActive = pathname === item.path;
 
@@ -126,7 +125,7 @@ export default function Navbar() {
                 <button
                   key={item.id}
                   onClick={() => router.push(item.path)}
-                  className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer ${
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-200 whitespace-nowrap cursor-pointer shrink-0 ${
                     isActive
                       ? "bg-orange-500 text-white shadow-sm"
                       : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
@@ -139,28 +138,24 @@ export default function Navbar() {
           </nav>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-3">
+        {/* Right Side: Quick Action Controls */}
+        <div className="flex items-center gap-2 shrink-0">
           {showInstallButton && (
-            <div className="flex flex-col items-end">
-              <button
-                onClick={handleInstallClick}
-                className="rounded-lg bg-orange-500 hover:bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition active:scale-[0.985]"
-              >
-                Download App
-              </button>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                WonderBakes Seller is better on app
-              </p>
-            </div>
+            <button
+              onClick={handleInstallClick}
+              className="rounded-md bg-orange-500 hover:bg-orange-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition active:scale-[0.985] whitespace-nowrap"
+              title="WonderBakes Seller is better on app"
+            >
+              Get App
+            </button>
           )}
 
           <button
             onClick={handleLogout}
             disabled={loggingOut}
-            className="rounded-lg bg-red-500 hover:bg-red-600 px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
+            className="rounded-md bg-red-500 hover:bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer whitespace-nowrap"
           >
-            {loggingOut ? "Signing out..." : "Logout"}
+            {loggingOut ? "..." : "Logout"}
           </button>
         </div>
       </div>
