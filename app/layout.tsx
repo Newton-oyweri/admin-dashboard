@@ -1,5 +1,5 @@
 // app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./providers";
@@ -14,27 +14,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const viewport = {
+export const viewport: Viewport = {
   themeColor: "#f97316",
 };
 
 export const metadata: Metadata = {
   title: "WonderBakes Seller",
-  description: "Seller Dashboard",
-  // 1. Link your manifest file
+  description: "WonderBakes Seller Dashboard",
   manifest: "/manifest.json",
-  // 2. Configure proper Apple web app setup parameters
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "WB Seller",
-  },
-  // 3. Declare the explicit target apple touch icon reference 
-  icons: {
-    apple: [
-      { url: "/icon.png", sizes: "192x192", type: "image/png" }
-    ]
-  }
 };
 
 export default function RootLayout({
@@ -47,12 +34,8 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-      </head>
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

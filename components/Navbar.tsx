@@ -10,13 +10,53 @@ export default function Navbar() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [userName, setUserName] = useState<string>("User");
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  // Detect if running as PWA
+  useEffect(() => {
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                  (window.navigator as any).standalone === true;
+    setIsInstalled(isPWA);
+  }, []);
+
+  // Handle PWA install prompt
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Listen for successful install
+    window.addEventListener('appinstalled', () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      setIsInstalled(true);
+    }
+    setDeferredPrompt(null);
+  };
 
   useEffect(() => {
     async function getActiveUser() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // Fetch full_name and role from your profiles table schema
         const { data: profile, error } = await supabase
           .from("profiles")
           .select("full_name, role")
@@ -53,16 +93,18 @@ export default function Navbar() {
     { id: "delivery", label: "Delivery", path: "/delivery" },
   ];
 
-  // Simply show tabs dynamically based on their role profile
   const visibleItems = allNavigationItems.filter((item) => {
-    if (!userRole) return false; // Hold tabs rendering until the role identity loads
+    if (!userRole) return false;
     
-    if (userRole === "admin") return true; // Admins can view absolutely everything
-    if (userRole === "delivery_person") return item.id === "delivery"; // Delivery sees only delivery tab
-    if (userRole === "seller") return item.id !== "delivery"; // Sellers see everything EXCEPT delivery
+    if (userRole === "admin") return true;
+    if (userRole === "delivery_person") return item.id === "delivery";
+    if (userRole === "seller") return item.id !== "delivery";
     
-    return false; // Default fallback for raw customers
+    return false;
   });
+
+  // Hide install button if already installed as PWA
+  const showInstallButton = !isInstalled && deferredPrompt;
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-zinc-800 dark:bg-zinc-900/90 shadow-sm">
@@ -98,13 +140,29 @@ export default function Navbar() {
         </div>
 
         {/* Action Controls */}
-        <button
-          onClick={handleLogout}
-          disabled={loggingOut}
-          className="rounded-lg bg-red-500 hover:bg-red-600 px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
-        >
-          {loggingOut ? "Signing out..." : "Logout"}
-        </button>
+        <div className="flex items-center gap-3">
+          {showInstallButton && (
+            <div className="flex flex-col items-end">
+              <button
+                onClick={handleInstallClick}
+                className="rounded-lg bg-orange-500 hover:bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition active:scale-[0.985]"
+              >
+                Download App
+              </button>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                WonderBakes Seller is better on app
+              </p>
+            </div>
+          )}
+
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="rounded-lg bg-red-500 hover:bg-red-600 px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
+          >
+            {loggingOut ? "Signing out..." : "Logout"}
+          </button>
+        </div>
       </div>
     </header>
   );
