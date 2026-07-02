@@ -4,19 +4,32 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/client";
 import { usePathname, useRouter } from "next/navigation";
 
+// Define a structural interface for the standard browser installation prompt event
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: Array<string>;
+  readonly userChoice: Promise<{
+    outcome: "accepted" | "dismissed";
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [userName, setUserName] = useState<string>("User");
   const [userRole, setUserRole] = useState<string | null>(null);
+  
+  // PWA State Handles
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
 
   useEffect(() => {
     async function getActiveUser() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // Fetch full_name and role from your profiles table schema
         const { data: profile, error } = await supabase
           .from("profiles")
           .select("full_name, role")
@@ -33,7 +46,47 @@ export default function Navbar() {
       }
     }
     getActiveUser();
+
+    // Listen for the browser's native PWA installation prompt request
+    const handleBeforeInstallPrompt = (e: Event) => {
+      // Prevent standard browser banners from displaying directly automatically
+      e.preventDefault();
+      // Save the event state wrapper so it can be manually triggered on tap later
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setShowInstallBtn(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    // Optional: Hide the button immediately if the application gets installed successfully
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      setShowInstallBtn(false);
+    };
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
   }, []);
+
+  const handleInstallPWA = async () => {
+    if (!deferredPrompt) return;
+    
+    // Show the native browser installation confirmation modal dialog box
+    deferredPrompt.prompt();
+    
+    // Await user's structural confirmation target action choice
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") {
+      console.log("User accepted the PWA install application request");
+    }
+    
+    // Clear prompt hook resource metrics context state references
+    setDeferredPrompt(null);
+    setShowInstallBtn(false);
+  };
 
   async function handleLogout() {
     try {
@@ -53,15 +106,14 @@ export default function Navbar() {
     { id: "delivery", label: "Delivery", path: "/delivery" },
   ];
 
-  // Simply show tabs dynamically based on their role profile
   const visibleItems = allNavigationItems.filter((item) => {
-    if (!userRole) return false; // Hold tabs rendering until the role identity loads
+    if (!userRole) return false;
     
-    if (userRole === "admin") return true; // Admins can view absolutely everything
-    if (userRole === "delivery_person") return item.id === "delivery"; // Delivery sees only delivery tab
-    if (userRole === "seller") return item.id !== "delivery"; // Sellers see everything EXCEPT delivery
+    if (userRole === "admin") return true;
+    if (userRole === "delivery_person") return item.id === "delivery";
+    if (userRole === "seller") return item.id !== "delivery";
     
-    return false; // Default fallback for raw customers
+    return false;
   });
 
   return (
@@ -98,13 +150,24 @@ export default function Navbar() {
         </div>
 
         {/* Action Controls */}
-        <button
-          onClick={handleLogout}
-          disabled={loggingOut}
-          className="rounded-lg bg-red-500 hover:bg-red-600 px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
-        >
-          {loggingOut ? "Signing out..." : "Logout"}
-        </button>
+        <div className="flex items-center gap-2 justify-end sm:w-auto">
+          {showInstallBtn && (
+            <button
+              onClick={handleInstallPWA}
+              className="rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-950/40 dark:text-orange-400 dark:hover:bg-orange-950/70 border border-orange-200/40 dark:border-orange-900/30 px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold shadow-sm transition cursor-pointer whitespace-nowrap"
+            >
+              📥 Download App
+            </button>
+          )}
+
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="rounded-lg bg-red-500 hover:bg-red-600 px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
+          >
+            {loggingOut ? "Signing out..." : "Logout"}
+          </button>
+        </div>
       </div>
     </header>
   );
