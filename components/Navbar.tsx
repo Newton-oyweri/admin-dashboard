@@ -8,26 +8,26 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
-  const [userName, setUserName] = useState<string>("Seller");
+  const [userName, setUserName] = useState<string>("User");
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     async function getActiveUser() {
-      // 1. Get the authenticated user session
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // 2. Fetch the 'name' column from your custom 'profiles' table matching the user's ID
+        // Fetch full_name and role from your profiles table schema
         const { data: profile, error } = await supabase
           .from("profiles")
-          .select("name") // Adjust this if your column is named 'full_name' or 'username'
+          .select("full_name, role")
           .eq("id", user.id)
           .single();
 
-        if (!error && profile?.name) {
-          setUserName(profile.name);
+        if (!error && profile) {
+          setUserName(profile.full_name || "User");
+          setUserRole(profile.role);
         } else {
-          // Fallback if profile row doesn't exist yet or column is empty
-          const fallbackName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Seller";
+          const fallbackName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
           setUserName(fallbackName);
         }
       }
@@ -46,11 +46,23 @@ export default function Navbar() {
     }
   }
 
-  const navigationItems = [
+  const allNavigationItems = [
     { id: "orders", label: "My orders", path: "/" },
     { id: "products", label: "My Products", path: "/products" },
     { id: "payouts", label: "Payout", path: "/payouts" },
+    { id: "delivery", label: "Delivery", path: "/delivery" },
   ];
+
+  // Simply show tabs dynamically based on their role profile
+  const visibleItems = allNavigationItems.filter((item) => {
+    if (!userRole) return false; // Hold tabs rendering until the role identity loads
+    
+    if (userRole === "admin") return true; // Admins can view absolutely everything
+    if (userRole === "delivery_person") return item.id === "delivery"; // Delivery sees only delivery tab
+    if (userRole === "seller") return item.id !== "delivery"; // Sellers see everything EXCEPT delivery
+    
+    return false; // Default fallback for raw customers
+  });
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-zinc-800 dark:bg-zinc-900/90 shadow-sm">
@@ -65,7 +77,7 @@ export default function Navbar() {
           <div className="h-px sm:h-4 w-full sm:w-px bg-zinc-200 dark:bg-zinc-700 hidden sm:block" />
           
           <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-            {navigationItems.map((item) => {
+            {visibleItems.map((item) => {
               const isActive = pathname === item.path;
 
               return (
