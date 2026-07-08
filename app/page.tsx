@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import { fetchSellerOrders, updateOrderStatus, getSessionUser, OrderWithDetails } from "./(protected)/orders/actions";
+import {
+  fetchSellerOrders,
+  fetchSellerBookings,
+  updateOrderStatus,
+  getSessionUser,
+  OrderWithDetails,
+} from "./(protected)/orders/actions";
 
 interface ParsedNotes {
   customWriting?: string;
@@ -21,15 +27,23 @@ const STATUS_MAP: Record<string, { label: string; container: string }> = {
   default: { label: "Unknown", container: "bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:border-zinc-700/50" },
 };
 
-export default function OrdersPage() {
+type Tab = "orders" | "bookings";
+
+export default function OrdersAndBookingsPage() {
+  const [tab, setTab] = useState<Tab>("orders");
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
+  const [bookings, setBookings] = useState<OrderWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [sellerId, setSellerId] = useState<string | null>(null);
 
   async function loadData(id: string) {
     setLoading(true);
-    const serverOrders = await fetchSellerOrders(id);
+    const [serverOrders, serverBookings] = await Promise.all([
+      fetchSellerOrders(id),
+      fetchSellerBookings(id),
+    ]);
     setOrders(serverOrders);
+    setBookings(serverBookings);
     setLoading(false);
   }
 
@@ -48,7 +62,7 @@ export default function OrdersPage() {
 
   const handleStateProgression = async (id: string, currentStatus: string) => {
     if (!sellerId) return;
-    
+
     let nextStatus = currentStatus;
     if (currentStatus === "pending") nextStatus = "accepted";
     else if (currentStatus === "accepted") nextStatus = "in_progress";
@@ -58,7 +72,7 @@ export default function OrdersPage() {
     if (success) {
       await loadData(sellerId);
     } else {
-      alert("Failed to advance order step.");
+      alert("Failed to advance step.");
     }
   };
 
@@ -71,55 +85,82 @@ export default function OrdersPage() {
     }
   };
 
+  const activeList = tab === "orders" ? orders : bookings;
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-6 space-y-6 sm:px-6 sm:py-8 sm:space-y-8 text-zinc-900 dark:text-zinc-50 antialiased">
       <Navbar />
-      
-      {/* Friendly Store Header */}
+
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200/80 dark:border-zinc-800/80 pb-5">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl text-zinc-900 dark:text-white">Your Orders</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl text-zinc-900 dark:text-white">
+            Orders &amp; Bookings
+          </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Track your incoming sales, manage customer requests, and fulfill your handbacks smoothly.
+            Track incoming sales and booking requests, and manage them from one place.
           </p>
         </div>
         <div className="inline-flex items-center self-start sm:self-center bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/30 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-emerald-800 dark:text-emerald-400 shadow-xs">
-          Active Store Orders: <span className="font-bold ml-1.5 px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/40">{orders.length}</span>
+          Active: <span className="font-bold ml-1.5 px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/40">{activeList.length}</span>
         </div>
       </div>
 
-      {/* Loading State Container */}
+      {/* Tabs */}
+      <div className="flex items-center gap-2 border-b border-zinc-200/80 dark:border-zinc-800/80">
+        <button
+          onClick={() => setTab("orders")}
+          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+            tab === "orders"
+              ? "border-zinc-900 dark:border-zinc-100 text-zinc-900 dark:text-zinc-100"
+              : "border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
+          }`}
+        >
+          Orders <span className="ml-1 text-xs text-zinc-400">({orders.length})</span>
+        </button>
+        <button
+          onClick={() => setTab("bookings")}
+          className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
+            tab === "bookings"
+              ? "border-zinc-900 dark:border-zinc-100 text-zinc-900 dark:text-zinc-100"
+              : "border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300"
+          }`}
+        >
+          Bookings <span className="ml-1 text-xs text-zinc-400">({bookings.length})</span>
+        </button>
+      </div>
+
+      {/* Loading */}
       {loading ? (
         <div className="border rounded-2xl bg-white dark:bg-zinc-950 border-zinc-200/80 dark:border-zinc-800/80 p-20 flex flex-col items-center justify-center space-y-3 shadow-xs">
           <div className="h-7 w-7 animate-spin rounded-full border-[2.5px] border-zinc-900 dark:border-zinc-100 border-t-transparent"></div>
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Loading your store metrics...</p>
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Loading...</p>
         </div>
-      ) : orders.length === 0 ? (
-        /* Empty State with direct Seller Engagement */
+      ) : activeList.length === 0 ? (
         <div className="border rounded-2xl bg-white dark:bg-zinc-950 border-zinc-200/80 dark:border-zinc-800/80 py-24 px-4 text-center shadow-xs">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 mb-3 text-xl">
             👋
           </div>
           <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">All caught up!</h3>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium mt-1 max-w-sm mx-auto">
-            No live orders found right now. Once clients check out items from your shop listings, they will show up right here.
+            {tab === "orders"
+              ? "No live orders found right now. Once clients check out items from your shop listings, they will show up right here."
+              : "No booking requests found right now. Once clients submit a booking, it will show up right here."}
           </p>
         </div>
-      ) : (
-        /* Isolated Blocks Layout Grid */
+      ) : tab === "orders" ? (
+        /* ORDERS LIST */
         <div className="space-y-4 sm:space-y-6">
           {orders.map((order) => {
             const notesDetails = safeParseNotes(order.notes);
             const badgeStyle = STATUS_MAP[order.status] || STATUS_MAP.default;
-            
+
             return (
               <div
                 key={order.id}
                 className="border rounded-2xl bg-white dark:bg-zinc-950 border-zinc-200/80 dark:border-zinc-800/80 p-5 sm:p-6 flex flex-col space-y-5 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-150 shadow-xs"
               >
-                {/* Meta Identifiers & Financial Block */}
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  
                   <div className="flex items-start gap-4 min-w-0">
                     {order.products?.image_urls && order.products.image_urls.length > 0 ? (
                       <img
@@ -153,19 +194,16 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  {/* Revenue tag */}
                   <div className="flex items-center sm:items-end justify-between sm:flex-col gap-1.5 bg-emerald-500/[0.04] dark:bg-emerald-500/[0.02] border border-emerald-500/10 p-3 rounded-xl min-w-[150px] self-start sm:self-auto w-full sm:w-auto">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 block">
-                      ✓ Paid 
+                      ✓ Paid
                     </span>
                     <span className="text-lg sm:text-xl font-bold tracking-tight text-emerald-700 dark:text-emerald-400 leading-none">
                       KES {Number(order.total_amount).toLocaleString()}
                     </span>
                   </div>
-
                 </div>
 
-                {/* Logistics & Request Sections */}
                 {(notesDetails.customWriting || notesDetails.deliveryAddress) && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-50/60 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/60 p-4 rounded-xl text-xs sm:text-sm">
                     {notesDetails.customWriting && (
@@ -178,7 +216,7 @@ export default function OrdersPage() {
                         </p>
                       </div>
                     )}
-                    
+
                     {notesDetails.deliveryAddress && (
                       <div className="space-y-1.5">
                         <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
@@ -192,10 +230,9 @@ export default function OrdersPage() {
                   </div>
                 )}
 
-                {/* Operational Progress Footbar */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3.5 border-t border-zinc-100 dark:border-zinc-900">
                   <div className="flex items-center text-xs text-zinc-400 dark:text-zinc-500">
-                    <span>Received: {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })}</span>
+                    <span>Received: {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
 
                   <div className="flex items-center justify-between sm:justify-end gap-3">
@@ -215,7 +252,70 @@ export default function OrdersPage() {
                     )}
                   </div>
                 </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* BOOKINGS LIST */
+        <div className="space-y-4 sm:space-y-6">
+          {bookings.map((booking) => {
+            const badgeStyle = STATUS_MAP[booking.status] || STATUS_MAP.default;
 
+            return (
+              <div
+                key={booking.id}
+                className="border rounded-2xl bg-white dark:bg-zinc-950 border-zinc-200/80 dark:border-zinc-800/80 p-5 sm:p-6 flex flex-col space-y-5 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-150 shadow-xs"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="font-semibold text-base sm:text-lg text-zinc-900 dark:text-zinc-100 leading-snug">
+                        Booking Request
+                      </h3>
+                      {booking.order_number && (
+                        <span className="inline-flex items-center text-[10px] tracking-wider font-mono font-bold bg-zinc-100 dark:bg-zinc-900 px-2 py-0.5 rounded-md text-zinc-600 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-800/50">
+                          #{booking.order_number}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                      <span>Customer: <strong className="text-zinc-800 dark:text-zinc-200 font-medium">{booking.profiles?.full_name || "Guest"}</strong></span>
+                    </div>
+                  </div>
+
+                  <div className={`px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider border self-start ${badgeStyle.container}`}>
+                    {badgeStyle.label}
+                  </div>
+                </div>
+
+                {booking.notes && (
+                  <div className="bg-zinc-50/60 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/60 p-4 rounded-xl">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-2">
+                      Booking Details
+                    </span>
+                    <p className="text-zinc-800 dark:text-zinc-200 text-sm font-medium whitespace-pre-line leading-relaxed bg-white dark:bg-zinc-950 p-3 rounded-lg border border-zinc-200/60 dark:border-zinc-800/80 shadow-2xs">
+                      {booking.notes}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3.5 border-t border-zinc-100 dark:border-zinc-900">
+                  <div className="flex items-center text-xs text-zinc-400 dark:text-zinc-500">
+                    <span>Received: {new Date(booking.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+
+                  {["pending", "accepted", "in_progress"].includes(booking.status) && (
+                    <button
+                      onClick={() => handleStateProgression(booking.id, booking.status)}
+                      className="px-4 py-1.5 bg-zinc-950 dark:bg-zinc-50 hover:bg-zinc-900 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-semibold rounded-lg transition-all active:scale-[0.98] cursor-pointer shadow-xs whitespace-nowrap self-start sm:self-auto"
+                    >
+                      {booking.status === "pending" && "Accept Booking"}
+                      {booking.status === "accepted" && "Start Preparation"}
+                      {booking.status === "in_progress" && "Mark Ready"}
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

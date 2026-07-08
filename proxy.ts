@@ -1,8 +1,8 @@
-// middleware.ts
+// proxy.ts (renamed from middleware.ts)
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -38,7 +38,6 @@ export async function middleware(request: NextRequest) {
 
   const isLoginPage = request.nextUrl.pathname.startsWith("/login");
 
-  // If not logged in, only allow access to the login page
   if (!user && !isLoginPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -48,13 +47,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all paths except:
-     * - _next/static (static assets)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - public files with extensions (svg, png, jpg, etc.)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|_next/data|favicon.ico|sw.js|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)",
   ],
 };
