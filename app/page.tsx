@@ -257,68 +257,44 @@ export default function OrdersAndBookingsPage() {
           })}
         </div>
       ) : (
-        /* BOOKINGS LIST */
+        /* BOOKINGS LIST — read-only, no status/actions */
         <div className="space-y-4 sm:space-y-6">
-          {bookings.map((booking) => {
-            const badgeStyle = STATUS_MAP[booking.status] || STATUS_MAP.default;
-
-            return (
-              <div
-                key={booking.id}
-                className="border rounded-2xl bg-white dark:bg-zinc-950 border-zinc-200/80 dark:border-zinc-800/80 p-5 sm:p-6 flex flex-col space-y-5 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-150 shadow-xs"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <h3 className="font-semibold text-base sm:text-lg text-zinc-900 dark:text-zinc-100 leading-snug">
-                        Booking Request
-                      </h3>
-                      {booking.order_number && (
-                        <span className="inline-flex items-center text-[10px] tracking-wider font-mono font-bold bg-zinc-100 dark:bg-zinc-900 px-2 py-0.5 rounded-md text-zinc-600 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-800/50">
-                          #{booking.order_number}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                      <span>Customer: <strong className="text-zinc-800 dark:text-zinc-200 font-medium">{booking.profiles?.full_name || "Guest"}</strong></span>
-                    </div>
-                  </div>
-
-                  <div className={`px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider border self-start ${badgeStyle.container}`}>
-                    {badgeStyle.label}
-                  </div>
-                </div>
-
-                {booking.notes && (
-                  <div className="bg-zinc-50/60 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/60 p-4 rounded-xl">
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-2">
-                      Booking Details
-                    </span>
-                    <p className="text-zinc-800 dark:text-zinc-200 text-sm font-medium whitespace-pre-line leading-relaxed bg-white dark:bg-zinc-950 p-3 rounded-lg border border-zinc-200/60 dark:border-zinc-800/80 shadow-2xs">
-                      {booking.notes}
-                    </p>
-                  </div>
+          {bookings.map((booking) => (
+            <div
+              key={booking.id}
+              className="border rounded-2xl bg-white dark:bg-zinc-950 border-zinc-200/80 dark:border-zinc-800/80 p-5 sm:p-6 flex flex-col space-y-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-150 shadow-xs"
+            >
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="font-semibold text-base sm:text-lg text-zinc-900 dark:text-zinc-100 leading-snug">
+                  Booking Request
+                </h3>
+                {booking.order_number && (
+                  <span className="inline-flex items-center text-[10px] tracking-wider font-mono font-bold bg-zinc-100 dark:bg-zinc-900 px-2 py-0.5 rounded-md text-zinc-600 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-800/50">
+                    #{booking.order_number}
+                  </span>
                 )}
-
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-3.5 border-t border-zinc-100 dark:border-zinc-900">
-                  <div className="flex items-center text-xs text-zinc-400 dark:text-zinc-500">
-                    <span>Received: {new Date(booking.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-
-                  {["pending", "accepted", "in_progress"].includes(booking.status) && (
-                    <button
-                      onClick={() => handleStateProgression(booking.id, booking.status)}
-                      className="px-4 py-1.5 bg-zinc-950 dark:bg-zinc-50 hover:bg-zinc-900 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-semibold rounded-lg transition-all active:scale-[0.98] cursor-pointer shadow-xs whitespace-nowrap self-start sm:self-auto"
-                    >
-                      {booking.status === "pending" && "Accept Booking"}
-                      {booking.status === "accepted" && "Start Preparation"}
-                      {booking.status === "in_progress" && "Mark Ready"}
-                    </button>
-                  )}
-                </div>
               </div>
-            );
-          })}
+
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                Customer: <strong className="text-zinc-800 dark:text-zinc-200 font-medium">{booking.profiles?.full_name || "Guest"}</strong>
+              </div>
+
+              {booking.notes && (
+                <div className="bg-zinc-50/60 dark:bg-zinc-900/40 border border-zinc-200/50 dark:border-zinc-800/60 p-4 rounded-xl">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-2">
+                    Booking Details
+                  </span>
+                  <p className="text-zinc-800 dark:text-zinc-200 text-sm font-medium whitespace-pre-line leading-relaxed bg-white dark:bg-zinc-950 p-3 rounded-lg border border-zinc-200/60 dark:border-zinc-800/80 shadow-2xs">
+                    {booking.notes}
+                  </p>
+                </div>
+              )}
+
+              <div className="text-xs text-zinc-400 dark:text-zinc-500 pt-3 border-t border-zinc-100 dark:border-zinc-900">
+                Received: {new Date(booking.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
