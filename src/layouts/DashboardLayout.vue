@@ -18,11 +18,15 @@ import Navbar from '@/components/TopNavbar.vue'
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #fcf8f8;
 }
 
 .content {
   flex: 1;
-  padding: 2rem;
-  background-color: #f8fafc;
+  background-color: #fcf8f8;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 </style>
