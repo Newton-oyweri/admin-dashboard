@@ -63,67 +63,114 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       redirect: () => {
-        // This will be handled by the navigation guard
         return '/dashboard'
       }
     }
   ]
 })
 
+// ✅ Track if this is the initial load
+let isInitialLoad = true
+let redirectInProgress = false
+
 // Navigation Guard
 router.beforeEach(async (to, from, next) => {
+  // Prevent multiple simultaneous redirects
+  if (redirectInProgress) {
+    next(false)
+    return
+  }
+
   // Get current session
   const { data: { session } } = await supabase.auth.getSession()
   const isAuthenticated = !!session
 
-  // If route requires auth and user is not authenticated
+  // ✅ If route requires auth and user is not authenticated
   if (to.meta.requiresAuth && !isAuthenticated) {
+    redirectInProgress = true
     next({
       path: '/login',
-      query: { redirect: to.fullPath } // Save the intended destination
+      query: { redirect: to.fullPath }
     })
+    redirectInProgress = false
     return
   }
 
-  // If route is for guests only (login page) and user is authenticated
+  // ✅ If route is for guests only (login page) and user is authenticated
   if (to.meta.requiresGuest && isAuthenticated) {
+    // If trying to go to login while authenticated, go to dashboard
+    // But preserve the intended redirect if coming from a protected route
+    const redirectPath = to.query.redirect as string
+    if (redirectPath && redirectPath !== '/login') {
+      redirectInProgress = true
+      next(redirectPath)
+      redirectInProgress = false
+      return
+    }
+    redirectInProgress = true
     next('/dashboard')
+    redirectInProgress = false
     return
   }
 
-  // If user is authenticated and trying to access root, redirect to dashboard
+  // ✅ If user is authenticated and trying to access root
   if (to.path === '/' && isAuthenticated) {
+    redirectInProgress = true
     next('/dashboard')
+    redirectInProgress = false
     return
   }
 
-  // If user is not authenticated and trying to access root, redirect to login
+  // ✅ If user is not authenticated and trying to access root
   if (to.path === '/' && !isAuthenticated) {
+    redirectInProgress = true
     next('/login')
+    redirectInProgress = false
     return
   }
 
-  // Allow navigation
+  // ✅ Allow navigation
+  isInitialLoad = false
   next()
 })
 
-// Optional: Handle authentication state changes globally
+// ✅ Handle authentication state changes with better logic
 let authSubscription: any = null
 
 // Initialize auth listener when router is created
 if (typeof window !== 'undefined') {
   const { data: { subscription } } = supabase.auth.onAuthStateChange(
     async (event, session) => {
-      // If user signs out, redirect to login
+      // ✅ If user signs out, redirect to login
       if (event === 'SIGNED_OUT') {
-        await router.push('/login')
+        // Only redirect if not already on login page
+        if (router.currentRoute.value.path !== '/login') {
+          await router.push('/login')
+        }
+        return
       }
       
-      // If user signs in, redirect to dashboard
+      // ✅ If user signs in, handle redirect with care
       if (event === 'SIGNED_IN') {
         // Check if there's a redirect query parameter
         const redirect = router.currentRoute.value.query.redirect as string
-        if (redirect) {
+        
+        // Don't redirect on initial load - the navigation guard will handle it
+        if (isInitialLoad) {
+          // On initial load, let the navigation guard handle routing
+          // But if we're on login page, redirect to the intended destination or dashboard
+          if (router.currentRoute.value.path === '/login') {
+            if (redirect && redirect !== '/login') {
+              await router.push(redirect)
+            } else {
+              await router.push('/dashboard')
+            }
+          }
+          return
+        }
+
+        // For subsequent sign-ins (not initial load)
+        if (redirect && redirect !== '/login') {
           await router.push(redirect)
         } else {
           await router.push('/dashboard')
@@ -134,10 +181,12 @@ if (typeof window !== 'undefined') {
   authSubscription = subscription
 }
 
-// Clean up subscription when router is destroyed
-router.beforeEach((to, from, next) => {
-  // Store the subscription for cleanup if needed
-  next()
-})
+// ✅ Clean up subscription when router is destroyed
+export function cleanupRouter() {
+  if (authSubscription) {
+    authSubscription.unsubscribe()
+  }
+}
 
+// ✅ Expose router for cleanup if needed
 export default router
