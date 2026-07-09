@@ -1,0 +1,22 @@
+/* Clean slate reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #fcf8f8; /* Soft background color for the whole site */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Aligns content to top instead of crushing it to the side */
+  padding: 20px;
+}
+
+#app {
+  width: 100%; /* Forces Vue to take up the full available width */
+  max-width: 1200px; /* Optional: gives your dashboard a clean desktop bounding container */
+  margin: 0 auto;
+}
