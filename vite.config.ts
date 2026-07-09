@@ -1,14 +1,13 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa' // 👇 Import the plugin
+import { VitePWA } from 'vite-plugin-pwa' 
 
 export default defineConfig({
   plugins: [
     vue(),
-    // ⚙️ Configure the PWA plugin
     VitePWA({
-      registerType: 'autoUpdate', // Automatically patches assets in the background
+      registerType: 'autoUpdate', 
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Wonderbakes Seller App',
@@ -19,22 +18,27 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'icon.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'icon.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'icon.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
           }
         ]
+      },
+      // 👇 ADD THIS LINE HERE TO FORCE IT ON LOCALHOST
+      devOptions: {
+        enabled: true,
+        type: 'module'
       }
     })
   ],
