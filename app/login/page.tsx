@@ -14,8 +14,7 @@ export default function LoginPage() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
-        // The library has guaranteed the cookies/localstorage are written
-        router.refresh(); // Clears Next.js server component cache
+        router.refresh(); 
         router.replace("/");
       }
     });
@@ -23,7 +22,11 @@ export default function LoginPage() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  const login = async () => {
+  // Changed to handle form submission
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); // 👈 Stops the page from reloading
+    if (loading) return;
+
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -32,13 +35,15 @@ export default function LoginPage() {
 
     if (error) {
       alert(error.message);
-      setLoading(false);
+      setLoading(false); // 👈 Unlocks button on error
       return;
     }
-    // Notice: No routing here! The useEffect listener above will catch it safely.
+    
+    // Just in case redirect takes a second, unlock it if unmounted safely, 
+    // or let the useEffect handle the redirect.
   };
 
-  // Shared modern styles for inputs
+  // Styles
   const inputStyle = {
     width: "100%",
     maxWidth: "320px",
@@ -51,13 +56,12 @@ export default function LoginPage() {
     backgroundColor: loading ? "#f5f5f5" : "#fff",
   };
 
-  // Shared modern styles for the button
   const buttonStyle = {
     width: "100%",
     maxWidth: "320px",
     padding: "12px",
     fontSize: "16px",
-    fontWeight: "bold",
+    fontWeight: "bold" as const,
     backgroundColor: loading ? "#482121" : "#f97316",
     color: "#ffffff",
     border: "none",
@@ -68,26 +72,34 @@ export default function LoginPage() {
   return (
     <div style={{ padding: 40, fontFamily: "sans-serif" }}>
       <h1>WonderBakes Seller</h1>
-      <input
-        placeholder="Email"
-        value={email}
-        disabled={loading}
-        onChange={(e) => setEmail(e.target.value)}
-        style={inputStyle}
-      />
-      <br /><br />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        disabled={loading}
-        onChange={(e) => setPassword(e.target.value)}
-        style={inputStyle}
-      />
-      <br /><br />
-      <button onClick={login} disabled={loading} style={buttonStyle}>
-        {loading ? "Logging in..." : "Login"}
-      </button>
+      
+      {/* 👈 Wrapped in a form element */}
+      <form onSubmit={handleLogin}> 
+        <input
+          type="email" // 👈 Better for mobile keyboards
+          placeholder="Email"
+          value={email}
+          disabled={loading}
+          onChange={(e) => setEmail(e.target.value)}
+          style={inputStyle}
+          required
+        />
+        <br /><br />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          disabled={loading}
+          onChange={(e) => setPassword(e.target.value)}
+          style={inputStyle}
+          required
+        />
+        <br /><br />
+        {/* 👈 type="submit" ensures clicking OR pressing Enter works */}
+        <button type="submit" disabled={loading} style={buttonStyle}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
     </div>
   );
 }
