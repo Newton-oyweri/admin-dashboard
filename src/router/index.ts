@@ -5,9 +5,9 @@ import DashboardLayout from '../layouts/DashboardLayout.vue'
 import DashboardHome from '../views/DashboardHome.vue'
 import ProductsList from '../views/ProductsList.vue'
 import OrdersList from '../views/OrdersList.vue'
-import OrdersAndBookings from '../views/DashboardHome.vue'
 import LoginPage from '../views/LoginPage.vue'
 import payouts from '../views/Payouts.vue'
+import delivery from '../views/Delivery.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,11 +51,10 @@ const router = createRouter({
           component: payouts,
           meta: { requiresAuth: true }
         },
-
         {
-          path: 'orders-and-bookings',
-          name: 'orders-and-bookings',
-          component: OrdersAndBookings,
+          path: 'delivery',
+          name: 'delivery',
+          component: delivery,
           meta: { requiresAuth: true }
         }
       ]
