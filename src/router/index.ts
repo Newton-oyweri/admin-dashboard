@@ -8,6 +8,7 @@ import OrdersList from '../views/OrdersList.vue'
 import LoginPage from '../views/LoginPage.vue'
 import payouts from '../views/Payouts.vue'
 import delivery from '../views/Delivery.vue'
+import manager from '../views/Manager.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -55,6 +56,13 @@ const router = createRouter({
           path: 'delivery',
           name: 'delivery',
           component: delivery,
+          meta: { requiresAuth: true }
+        }
+        ,
+        {
+          path: 'manager',
+          name: 'manager',
+          component: manager,
           meta: { requiresAuth: true }
         }
       ]

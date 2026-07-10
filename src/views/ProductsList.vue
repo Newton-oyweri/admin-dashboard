@@ -1,8 +1,6 @@
-<!-- src/views/ProductsList.vue -->
 <template>
   <div class="w-full max-w-7xl mx-auto px-4 py-4 space-y-6 sm:py-8 sm:space-y-8 text-zinc-900 dark:text-zinc-50">
   
-    
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-zinc-100 dark:border-zinc-800 pb-4">
       <div>
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -17,17 +15,39 @@
       </div>
     </div>
 
-    <!-- Single Column Layout -->
     <div class="space-y-6">
       
-      <!-- Add Product Form -->
       <div class="border rounded-2xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm">
         <div class="p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800">
           <h2 class="text-base font-bold tracking-tight">Add New Product</h2>
         </div>
         
         <form @submit.prevent="handleUploadSubmit" class="p-4 sm:p-5 space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">
+              Select Category
+            </label>
+            <div v-if="categories.length === 0" class="text-xs text-zinc-400 py-2">
+              Loading active categories...
+            </div>
+            <div v-else class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                v-for="cat in categories"
+                :key="cat.id"
+                @click="formData.category = cat.id"
+                class="px-4 py-2 text-xs font-semibold rounded-xl border capitalize transition-all cursor-pointer"
+                :class="formData.category === cat.id 
+                  ? 'bg-pink-600 border-pink-600 text-white shadow-xs' 
+                  : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'"
+              >
+                {{ cat.name }}
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
                 Product Name
@@ -39,20 +59,6 @@
                 required
                 class="w-full text-sm px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500"
               />
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
-                Category
-              </label>
-              <select 
-                v-model="formData.category"
-                class="w-full text-sm px-2.5 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500"
-              >
-                <option value="cake">Cake</option>
-                <option value="pizza">Pizza</option>
-                <option value="flowers">Flowers</option>
-              </select>
             </div>
 
             <div>
@@ -89,7 +95,7 @@
             <textarea 
               v-model="formData.description"
               rows="3"
-              placeholder="Provide product details such as ingredients/materials used, cake flavour, pizza size, flower type, dimensions, and the number of people it serves (if applicable)."
+              placeholder="Provide product details such as ingredients/materials used, cake flavour, pizza size, flower type, dimensions..."
               class="w-full text-sm px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 resize-none"
             />
           </div>
@@ -124,7 +130,6 @@
         </form>
       </div>
 
-      <!-- Product List -->
       <div class="space-y-4">
         <h2 class="text-base font-bold tracking-tight px-1">All Products</h2>
 
@@ -138,7 +143,6 @@
         </div>
 
         <div v-else class="border rounded-2xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
-          <!-- Desktop Table Header -->
           <div class="hidden sm:grid grid-cols-12 gap-2 px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-700 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
             <div class="col-span-5">Product</div>
             <div class="col-span-2 text-center">Price</div>
@@ -146,7 +150,6 @@
             <div class="col-span-3 text-right">Actions</div>
           </div>
 
-          <!-- Product List -->
           <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
             <div 
               v-for="product in products" 
@@ -154,7 +157,6 @@
               class="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors"
               :class="{ 'opacity-60': !product.is_available }"
             >
-              <!-- Mobile Card View -->
               <div class="sm:hidden space-y-3">
                 <div class="flex items-start gap-3">
                   <div class="relative shrink-0">
@@ -167,9 +169,6 @@
                     <div v-else class="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center text-[10px] text-zinc-400">
                       No Image
                     </div>
-                    <span v-if="product.image_urls && product.image_urls.length > 1" class="absolute -top-1 -right-1 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 font-bold text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-                      +{{ product.image_urls.length - 1 }}
-                    </span>
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-1.5 flex-wrap">
@@ -186,38 +185,24 @@
                     <p class="text-sm font-bold text-pink-600 dark:text-pink-400">
                       KES {{ Number(product.price).toLocaleString() }}
                     </p>
-                    <div class="flex items-center gap-2 mt-2">
-                      <span class="text-[10px] font-semibold px-2 py-1 rounded" :class="product.is_available ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'">
-                        {{ product.is_available ? 'In Stock' : 'Out of Stock' }}
-                      </span>
-                    </div>
                   </div>
                 </div>
                 <div class="flex items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
                   <button
-                    v-if="product.is_available"
                     @click="handleToggleStock(product.id, product.is_available)"
-                    class="text-xs font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
+                    class="text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                   >
-                    Mark Out of Stock
-                  </button>
-                  <button
-                    v-else
-                    @click="handleToggleStock(product.id, product.is_available)"
-                    class="text-xs font-medium text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors cursor-pointer"
-                  >
-                    Mark In Stock
+                    {{ product.is_available ? 'Mark Out of Stock' : 'Mark In Stock' }}
                   </button>
                   <button
                     @click="handleDelete(product.id, product.image_urls)"
-                    class="text-xs font-medium text-zinc-400 hover:text-red-500 dark:hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
+                    class="text-xs font-medium text-zinc-400 hover:text-red-500 dark:hover:text-red-400 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                   >
                     Delete
                   </button>
                 </div>
               </div>
 
-              <!-- Desktop Row View -->
               <div class="hidden sm:grid grid-cols-12 gap-2 items-center">
                 <div class="col-span-5 flex items-center gap-3 min-w-0">
                   <div class="relative shrink-0">
@@ -230,9 +215,6 @@
                     <div v-else class="w-10 h-10 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center text-[8px] text-zinc-400">
                       No Image
                     </div>
-                    <span v-if="product.image_urls && product.image_urls.length > 1" class="absolute -top-1 -right-1 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 font-bold text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-xs">
-                      +{{ product.image_urls.length - 1 }}
-                    </span>
                   </div>
                   <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-1.5 flex-wrap">
@@ -263,22 +245,14 @@
 
                 <div class="col-span-3 flex items-center justify-end gap-2">
                   <button
-                    v-if="product.is_available"
                     @click="handleToggleStock(product.id, product.is_available)"
-                    class="text-xs font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
+                    class="text-xs font-medium px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 cursor-pointer"
                   >
-                    Mark Out of Stock
-                  </button>
-                  <button
-                    v-else
-                    @click="handleToggleStock(product.id, product.is_available)"
-                    class="text-xs font-medium text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors cursor-pointer"
-                  >
-                    Mark In Stock
+                    {{ product.is_available ? 'Mark Out of Stock' : 'Mark In Stock' }}
                   </button>
                   <button
                     @click="handleDelete(product.id, product.image_urls)"
-                    class="text-xs font-medium text-zinc-400 hover:text-red-500 dark:hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
+                    class="text-xs font-medium text-zinc-400 hover:text-red-500 dark:hover:text-red-400 px-3 py-1.5 rounded-lg cursor-pointer"
                   >
                     Delete
                   </button>
@@ -310,6 +284,13 @@ interface Product {
   image_urls: string[] | null;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  is_active: boolean;
+  display_order: number;
+}
+
 interface FormData {
   name: string;
   category: string;
@@ -321,13 +302,14 @@ interface FormData {
 
 // State
 const products = ref<Product[]>([])
+const categories = ref<Category[]>([])
 const loading = ref(false)
 const uploading = ref(false)
 const user = ref<{ id: string; email?: string; name: string } | null>(null)
 
 const formData = ref<FormData>({
   name: '',
-  category: 'cake',
+  category: '', // Set on load dynamically
   price: '',
   description: '',
   post_type: 'sale',
@@ -344,6 +326,20 @@ const getSessionUser = async () => {
     email: sessionUser.email,
     name: sessionUser.user_metadata?.full_name || sessionUser.email?.split('@')[0] || 'Seller'
   }
+}
+
+const fetchCategories = async (): Promise<Category[]> => {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, is_active, display_order')
+    .eq('is_active', true)
+    .order('display_order', { ascending: true })
+
+  if (error) {
+    console.error('Error loading categories:', error)
+    return []
+  }
+  return data as Category[]
 }
 
 const fetchProducts = async (): Promise<Product[]> => {
@@ -403,8 +399,7 @@ const updateProductAvailability = async (id: string, nextStatus: boolean): Promi
     .update({ is_available: nextStatus })
     .eq('id', id)
 
-  if (error) return false
-  return true
+  return !error
 }
 
 const removeProduct = async (id: string, imageUrls: string[] | null): Promise<boolean> => {
@@ -424,8 +419,7 @@ const removeProduct = async (id: string, imageUrls: string[] | null): Promise<bo
     .delete()
     .eq('id', id)
 
-  if (error) return false
-  return true
+  return !error
 }
 
 const handleFileChange = (e: Event) => {
@@ -438,6 +432,7 @@ const handleFileChange = (e: Event) => {
 
 const handleUploadSubmit = async () => {
   if (!user.value) return alert('Session not found. Please re-authenticate.')
+  if (!formData.value.category) return alert('Please select a category first!')
   if (formData.value.files.length === 0) return alert('Please select at least one image')
 
   uploading.value = true
@@ -445,7 +440,9 @@ const handleUploadSubmit = async () => {
     const newProduct = await uploadProduct(formData.value, user.value.id)
     if (newProduct) {
       products.value = [newProduct, ...products.value]
-      formData.value = { name: '', category: 'cake', price: '', description: '', post_type: 'sale', files: [] }
+      // Clear but persist the first category choice
+      const savedCategory = formData.value.category
+      formData.value = { name: '', category: savedCategory, price: '', description: '', post_type: 'sale', files: [] }
       const fileInput = document.getElementById('fileInput') as HTMLInputElement
       if (fileInput) fileInput.value = ''
       alert('✅ Product added successfully!')
@@ -483,6 +480,7 @@ const handleDelete = async (id: string, imageUrls: string[] | null) => {
 // Lifecycle
 onMounted(async () => {
   loading.value = true
+  
   const activeUser = await getSessionUser()
   if (activeUser) {
     user.value = activeUser
@@ -490,6 +488,14 @@ onMounted(async () => {
     alert('Please log in first!')
     loading.value = false
     return
+  }
+  
+  // Load Categories first to sync with initial formData selection
+  const categoryList = await fetchCategories()
+  categories.value = categoryList
+  const firstCategory = categoryList[0]
+  if (firstCategory) {
+    formData.value.category = firstCategory.id
   }
   
   const productList = await fetchProducts()

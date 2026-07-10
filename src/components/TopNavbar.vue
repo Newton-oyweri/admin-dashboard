@@ -75,6 +75,7 @@ const allNavigationItems = [
   { id: 'products', label: 'My Products', path: '/products' },
   { id: 'payouts', label: 'Payout', path: '/payouts' },
   { id: 'delivery', label: 'Delivery', path: '/delivery' },
+  { id: 'manager', label: 'Manager', path: '/manager' }
 ]
 
 const visibleNavItems = computed(() => {
