@@ -80,12 +80,18 @@ const allNavigationItems = [
 
 const visibleNavItems = computed(() => {
   if (!userRole.value) return []
-  
+
   return allNavigationItems.filter((item) => {
-    if (userRole.value === 'admin') return true
-    if (userRole.value === 'delivery_person') return item.id === 'delivery'
-    if (userRole.value === 'seller') return item.id !== 'delivery'
-    return false
+    switch (userRole.value) {
+      case 'admin':
+        return true // Admin sees everything
+      case 'delivery_person':
+        return item.id === 'delivery'
+      case 'seller':
+        return ['orders', 'products', 'payouts'].includes(item.id)
+      default:
+        return false
+    }
   })
 })
 
@@ -94,9 +100,7 @@ const showInstallButton = computed(() => {
 })
 
 // Methods
-const isActive = (path: string) => {
-  return route.path === path
-}
+const isActive = (path: string) => route.path === path
 
 const navigateTo = (path: string) => {
   router.push(path)
@@ -104,13 +108,9 @@ const navigateTo = (path: string) => {
 
 const handleInstall = async () => {
   if (!deferredPrompt.value) return
-
   deferredPrompt.value.prompt()
   const { outcome } = await deferredPrompt.value.userChoice
-  
-  if (outcome === 'accepted') {
-    isInstalled.value = true
-  }
+  if (outcome === 'accepted') isInstalled.value = true
   deferredPrompt.value = null
 }
 
@@ -127,25 +127,24 @@ const handleLogout = async () => {
 // Get user data
 const getActiveUser = async () => {
   const { data: { user } } = await supabase.auth.getUser()
-  
-  if (user) {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('full_name, role')
-      .eq('id', user.id)
-      .single()
+  if (!user) return
 
-    if (!error && profile) {
-      userName.value = profile.full_name || 'User'
-      userRole.value = profile.role
-    } else {
-      const fallbackName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
-      userName.value = fallbackName
-    }
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile) {
+    userName.value = profile.full_name || 'User'
+    userRole.value = profile.role
+  } else {
+    const fallback = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+    userName.value = fallback
   }
 }
 
-// PWA event handlers
+// PWA handlers
 const handleBeforeInstallPrompt = (e: any) => {
   e.preventDefault()
   deferredPrompt.value = e
@@ -158,33 +157,23 @@ const handleAppInstalled = () => {
 
 // Lifecycle
 onMounted(() => {
-  // Get user data
   getActiveUser()
-  
-  // Check if running as PWA
+
   const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
                 (window.navigator as any).standalone === true
   isInstalled.value = isPWA
 
-  // Add event listeners
   window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
   window.addEventListener('appinstalled', handleAppInstalled)
 })
 
 onUnmounted(() => {
-  // Clean up event listeners
   window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
   window.removeEventListener('appinstalled', handleAppInstalled)
 })
 </script>
 
 <style scoped>
-/* Hide scrollbar for nav */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
