@@ -1,6 +1,7 @@
 <template>
   <div class="w-full max-w-7xl mx-auto px-4 py-4 space-y-6 sm:py-8 sm:space-y-8 text-zinc-900 dark:text-zinc-50">
-  
+
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-zinc-100 dark:border-zinc-800 pb-4">
       <div>
         <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -11,127 +12,23 @@
         </p>
       </div>
       <div class="self-start sm:self-center bg-zinc-100 dark:bg-zinc-800 px-3 py-1.5 rounded-lg text-xs font-medium">
-        Total Items: <span class="font-bold text-pink-600 dark:text-pink-400">{{ products.length }}</span>
+        Total Items: <span class="font-bold text-pink-600 dark:text-pink-400">{{ totalProducts }}</span>
       </div>
     </div>
 
     <div class="space-y-6">
-      
-      <div class="border rounded-2xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm">
-        <div class="p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800">
-          <h2 class="text-base font-bold tracking-tight">Add New Product</h2>
-        </div>
-        
-        <form @submit.prevent="handleUploadSubmit" class="p-4 sm:p-5 space-y-4">
-          
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">
-              Select Category
-            </label>
-            <div v-if="categories.length === 0" class="text-xs text-zinc-400 py-2">
-              Loading active categories...
-            </div>
-            <div v-else class="flex flex-wrap gap-2">
-              <button
-                type="button"
-                v-for="cat in categories"
-                :key="cat.id"
-                @click="formData.category = cat.id"
-                class="px-4 py-2 text-xs font-semibold rounded-xl border capitalize transition-all cursor-pointer"
-                :class="formData.category === cat.id 
-                  ? 'bg-pink-600 border-pink-600 text-white shadow-xs' 
-                  : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'"
-              >
-                {{ cat.name }}
-              </button>
-            </div>
-          </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
-                Product Name
-              </label>
-              <input 
-                type="text" 
-                v-model="formData.name"
-                placeholder="Chocolate Fudge, Rose Bouquet..."
-                required
-                class="w-full text-sm px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500"
-              />
-            </div>
+      <!-- AddProduct Component -->
+      <AddProduct :user-id="user?.id" @product-added="handleProductAdded" />
 
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
-                Price (KES)
-              </label>
-              <input 
-                type="number" 
-                v-model="formData.price"
-                placeholder="2500"
-                required
-                class="w-full text-sm px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500"
-              />
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
-                Product Type
-              </label>
-              <select 
-                v-model="formData.post_type"
-                class="w-full text-sm px-2.5 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500"
-              >
-                <option value="sale">Instant Purchase</option>
-                <option value="booking">Booking</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
-              Description
-            </label>
-            <textarea 
-              v-model="formData.description"
-              rows="3"
-              placeholder="Provide product details such as ingredients/materials used, cake flavour, pizza size, flower type, dimensions..."
-              class="w-full text-sm px-3 py-2 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 resize-none"
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
-              Product Images
-            </label>
-            <div class="border border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-center bg-zinc-50/30 dark:bg-zinc-800/10 hover:border-pink-500 transition-colors">
-              <input 
-                id="fileInput"
-                type="file" 
-                multiple 
-                accept="image/*" 
-                @change="handleFileChange"
-                required
-                class="block w-full text-xs text-zinc-500 dark:text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-pink-50 dark:file:bg-pink-950/30 file:text-pink-700 dark:file:text-pink-400 cursor-pointer"
-              />
-              <p v-if="formData.files.length > 0" class="mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                {{ formData.files.length }} images selected
-              </p>
-            </div>
-          </div>
-
-          <button 
-            type="submit"
-            :disabled="uploading || !user"
-            class="w-full py-2.5 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 font-semibold rounded-xl text-sm transition-transform active:scale-98 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 cursor-pointer disabled:cursor-not-allowed shadow-xs"
-          >
-            {{ uploading ? 'Adding Product...' : 'Add Product' }}
-          </button>
-        </form>
-      </div>
-
+      <!-- Catalog List -->
       <div class="space-y-4">
-        <h2 class="text-base font-bold tracking-tight px-1">All Products</h2>
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-base font-bold tracking-tight">All Products</h2>
+          <span v-if="totalProducts > 0" class="text-xs text-zinc-400">
+            Showing {{ ((currentPage - 1) * PAGE_SIZE) + 1 }} - {{ Math.min(currentPage * PAGE_SIZE, totalProducts) }} of {{ totalProducts }}
+          </span>
+        </div>
 
         <div v-if="loading" class="text-center py-12">
           <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-pink-500 border-t-transparent"></div>
@@ -151,12 +48,13 @@
           </div>
 
           <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
-            <div 
-              v-for="product in products" 
+            <div
+              v-for="product in products"
               :key="product.id"
               class="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors"
               :class="{ 'opacity-60': !product.is_available }"
             >
+              <!-- Mobile view -->
               <div class="sm:hidden space-y-3">
                 <div class="flex items-start gap-3">
                   <div class="relative shrink-0">
@@ -190,7 +88,7 @@
                 <div class="flex items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
                   <button
                     @click="handleToggleStock(product.id, product.is_available)"
-                    class="text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    class="text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                   >
                     {{ product.is_available ? 'Mark Out of Stock' : 'Mark In Stock' }}
                   </button>
@@ -203,6 +101,7 @@
                 </div>
               </div>
 
+              <!-- Desktop view -->
               <div class="hidden sm:grid grid-cols-12 gap-2 items-center">
                 <div class="col-span-5 flex items-center gap-3 min-w-0">
                   <div class="relative shrink-0">
@@ -260,6 +159,28 @@
               </div>
             </div>
           </div>
+
+          <!-- Pagination Bar -->
+          <div v-if="totalPages > 1" class="flex items-center justify-between px-4 py-3 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-200 dark:border-zinc-800 text-xs">
+            <button
+              @click="changePage(currentPage - 1)"
+              :disabled="currentPage === 1 || loading"
+              class="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 font-semibold disabled:opacity-40 hover:bg-white dark:hover:bg-zinc-800 cursor-pointer disabled:cursor-not-allowed"
+            >
+              ← Previous
+            </button>
+            <span class="text-zinc-500 dark:text-zinc-400 font-medium">
+              Page <strong class="text-zinc-900 dark:text-zinc-100">{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong>
+            </span>
+            <button
+              @click="changePage(currentPage + 1)"
+              :disabled="currentPage >= totalPages || loading"
+              class="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 font-semibold disabled:opacity-40 hover:bg-white dark:hover:bg-zinc-800 cursor-pointer disabled:cursor-not-allowed"
+            >
+              Next →
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
@@ -267,8 +188,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
+import AddProduct from './Addproduct.vue'
 
 interface Product {
   id: string;
@@ -280,47 +202,26 @@ interface Product {
   is_available: boolean;
   created_at: string;
   updated_at: string;
-  post_type: 'sale' | 'booking' | 'pinned';
+  post_type: 'sale' | 'booking';
   image_urls: string[] | null;
 }
 
-interface Category {
-  id: string;
-  name: string;
-  is_active: boolean;
-  display_order: number;
-}
-
-interface FormData {
-  name: string;
-  category: string;
-  price: string;
-  description: string;
-  post_type: 'sale' | 'booking';
-  files: File[];
-}
+const PAGE_SIZE = 10
 
 // State
 const products = ref<Product[]>([])
-const categories = ref<Category[]>([])
+const totalProducts = ref(0)
+const currentPage = ref(1)
 const loading = ref(false)
-const uploading = ref(false)
 const user = ref<{ id: string; email?: string; name: string } | null>(null)
 
-const formData = ref<FormData>({
-  name: '',
-  category: '', // Set on load dynamically
-  price: '',
-  description: '',
-  post_type: 'sale',
-  files: []
-})
+const totalPages = computed(() => Math.ceil(totalProducts.value / PAGE_SIZE))
 
 // Methods
 const getSessionUser = async () => {
   const { data: { user: sessionUser } } = await supabase.auth.getUser()
   if (!sessionUser) return null
-  
+
   return {
     id: sessionUser.id,
     email: sessionUser.email,
@@ -328,69 +229,33 @@ const getSessionUser = async () => {
   }
 }
 
-const fetchCategories = async (): Promise<Category[]> => {
-  const { data, error } = await supabase
-    .from('categories')
-    .select('id, name, is_active, display_order')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true })
+const fetchProductsPage = async (page: number) => {
+  loading.value = true
+  const from = (page - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
 
-  if (error) {
-    console.error('Error loading categories:', error)
-    return []
+  try {
+    const { data, count, error } = await supabase
+      .from('products')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to)
+
+    if (error) throw error
+
+    products.value = (data as Product[]) || []
+    totalProducts.value = count || 0
+    currentPage.value = page
+  } catch {
+    // Silent fail for production
+  } finally {
+    loading.value = false
   }
-  return data as Category[]
 }
 
-const fetchProducts = async (): Promise<Product[]> => {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false })
-  
-  if (error) {
-    console.error('Error fetching products:', error)
-    return []
-  }
-  return data as Product[]
-}
-
-const uploadProduct = async (formDataValue: FormData, userId: string): Promise<Product | null> => {
-  const uploadedUrls: string[] = []
-  
-  for (const file of formDataValue.files) {
-    const uploadFormData = new FormData()
-    uploadFormData.append('file', file)
-
-    const cloudflareRes = await fetch('https://posts-api.unscriptedusa.workers.dev/', {
-      method: 'POST',
-      body: uploadFormData
-    })
-
-    if (!cloudflareRes.ok) throw new Error(`Failed to upload ${file.name}`)
-
-    const { image_url } = await cloudflareRes.json()
-    uploadedUrls.push(image_url)
-  }
-
-  const productData = {
-    seller_id: userId,
-    category: formDataValue.category,
-    name: formDataValue.name,
-    description: formDataValue.description,
-    price: parseFloat(formDataValue.price),
-    image_urls: uploadedUrls,
-    is_available: true,
-    post_type: formDataValue.post_type
-  }
-
-  const { data, error } = await supabase
-    .from('products')
-    .insert([productData])
-    .select()
-
-  if (error) throw new Error(error.message)
-  return data && data.length > 0 ? (data[0] as Product) : null
+const changePage = (newPage: number) => {
+  if (newPage < 1 || newPage > totalPages.value) return
+  fetchProductsPage(newPage)
 }
 
 const updateProductAvailability = async (id: string, nextStatus: boolean): Promise<boolean> => {
@@ -409,7 +274,7 @@ const removeProduct = async (id: string, imageUrls: string[] | null): Promise<bo
       if (key) {
         await fetch(`https://posts-api.unscriptedusa.workers.dev/?key=${key}`, {
           method: 'DELETE'
-        })
+        }).catch(() => {})
       }
     }
   }
@@ -422,36 +287,9 @@ const removeProduct = async (id: string, imageUrls: string[] | null): Promise<bo
   return !error
 }
 
-const handleFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  const files = Array.from(target.files || [])
-  if (files.length > 0) {
-    formData.value.files = files
-  }
-}
-
-const handleUploadSubmit = async () => {
-  if (!user.value) return alert('Session not found. Please re-authenticate.')
-  if (!formData.value.category) return alert('Please select a category first!')
-  if (formData.value.files.length === 0) return alert('Please select at least one image')
-
-  uploading.value = true
-  try {
-    const newProduct = await uploadProduct(formData.value, user.value.id)
-    if (newProduct) {
-      products.value = [newProduct, ...products.value]
-      // Clear but persist the first category choice
-      const savedCategory = formData.value.category
-      formData.value = { name: '', category: savedCategory, price: '', description: '', post_type: 'sale', files: [] }
-      const fileInput = document.getElementById('fileInput') as HTMLInputElement
-      if (fileInput) fileInput.value = ''
-      alert('✅ Product added successfully!')
-    }
-  } catch (error) {
-    alert('❌ Failed to add product: ' + (error as Error).message)
-  } finally {
-    uploading.value = false
-  }
+const handleProductAdded = () => {
+  // Jump back to page 1 to display newest item
+  fetchProductsPage(1)
 }
 
 const handleToggleStock = async (id: string, currentStatus: boolean) => {
@@ -470,7 +308,12 @@ const handleDelete = async (id: string, imageUrls: string[] | null) => {
   if (!confirm('Are you sure you want to delete this listing permanently?')) return
   const success = await removeProduct(id, imageUrls)
   if (success) {
-    products.value = products.value.filter(p => p.id !== id)
+    // If last item on page deleted, go back 1 page if available
+    const targetPage = (products.value.length === 1 && currentPage.value > 1) 
+      ? currentPage.value - 1 
+      : currentPage.value
+      
+    await fetchProductsPage(targetPage)
     alert('✅ Listing deleted successfully!')
   } else {
     alert('❌ Failed to delete product')
@@ -479,27 +322,15 @@ const handleDelete = async (id: string, imageUrls: string[] | null) => {
 
 // Lifecycle
 onMounted(async () => {
-  loading.value = true
-  
   const activeUser = await getSessionUser()
   if (activeUser) {
     user.value = activeUser
   } else {
     alert('Please log in first!')
-    loading.value = false
     return
   }
-  
-  // Load Categories first to sync with initial formData selection
-  const categoryList = await fetchCategories()
-  categories.value = categoryList
-  const firstCategory = categoryList[0]
-  if (firstCategory) {
-    formData.value.category = firstCategory.id
-  }
-  
-  const productList = await fetchProducts()
-  products.value = productList
-  loading.value = false
+
+  await fetchProductsPage(1)
 })
 </script>
+
